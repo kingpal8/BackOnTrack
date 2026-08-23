@@ -569,25 +569,24 @@ updateHistory();
 showMessage(note===""?"✓ Note removed":"✓ Note saved successfully");
 });
 }
-
 document.getElementById("saveSettings").addEventListener("click",function(){
-const rows=document.querySelectorAll(".setting-row");
+const rows=document.querySelectorAll(".habit-setting-row");
 
 rows.forEach(function(row,index){
 habits[index].icon=row.querySelector(".icon-input").value||habits[index].icon;
 habits[index].name=row.querySelector(".name-input").value||habits[index].name;
 habits[index].target=Number(row.querySelector(".target-input").value)||habits[index].target;
+habits[index].unit=row.querySelector(".unit-input").value||habits[index].unit;
 });
 
 localStorage.setItem("backOnTrackHabits",JSON.stringify(habits));
 
-renderHabits();
 renderSettings();
+renderHabits();
 updateDashboard();
 
 showMessage("✓ Settings saved successfully");
 });
-
 document.querySelectorAll(".nav-btn").forEach(function(button){
 button.addEventListener("click",function(){
 const pageName=button.dataset.page;
