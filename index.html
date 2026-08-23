@@ -7,9 +7,11 @@
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
+
 <header>
 <h1>BackOnTrack</h1>
 <p>Small steps. Stay consistent.</p>
+
 <nav>
 <button class="nav-btn active" data-page="dashboard">Dashboard</button>
 <button class="nav-btn" data-page="history">History</button>
@@ -18,12 +20,15 @@
 </header>
 
 <main>
+
 <section id="dashboard" class="page active-page">
+
 <section class="dashboard-header">
 <div>
 <h2>Dashboard</h2>
 <p id="todayDate"></p>
 </div>
+
 <div class="streak">
 <span>🔥</span>
 <strong id="streakCount">0</strong>
@@ -38,26 +43,33 @@
 <strong id="levelNumber">Level 1</strong>
 <p id="levelTitle">🌱 Beginner</p>
 </div>
+
 <div class="xp-number" id="xpNumber">0 XP</div>
 </div>
+
 <div class="xp-bar">
 <div id="xpFill"></div>
 </div>
+
 <p id="xpProgress">0 / 100 XP to next level</p>
 </section>
 
 <section class="progress-card">
 <div class="progress-top">
+
 <div>
 <h3>Today's Progress</h3>
 <p id="progressText">0 of 3 habits completed</p>
 </div>
+
 <div class="score-box">
 <strong id="progressPercent">0%</strong>
 <div id="dailyScore">Score: 0/100</div>
 <div id="scoreMessage"></div>
 </div>
+
 </div>
+
 <div class="progress-bar">
 <div id="progressFill"></div>
 </div>
@@ -65,6 +77,7 @@
 
 <section class="motivation-card">
 <div class="motivation-icon">🌱</div>
+
 <div>
 <h3>Today's Reminder</h3>
 <p id="motivationText"></p>
@@ -74,41 +87,58 @@
 <section class="habits" id="habitsContainer"></section>
 
 <section class="notes-card">
+
 <div class="section-title">
 <h2>Today's Notes</h2>
 <p>Write something about your day.</p>
 </div>
+
 <textarea id="dailyNotes" placeholder="How was your day? What did you learn or improve?"></textarea>
+
 <button id="saveNotes">Save Note</button>
+
 </section>
 
 <section class="weekly-section">
+
 <div class="section-title">
 <h2>7-Day Overview</h2>
 <p>Your recent consistency</p>
 </div>
+
 <div id="weeklyOverview" class="weekly-overview"></div>
+
 </section>
 
 <section class="achievements-section">
+
 <div class="section-title">
 <h2>🏅 Achievements</h2>
 <p>Your milestones and badges</p>
 </div>
+
 <div id="achievementsContainer" class="achievements-container"></div>
+
 </section>
 
 <section class="summary-section">
+
 <div class="section-title">
 <h2>📊 Personal Progress</h2>
 <p>Your overall progress</p>
 </div>
+
 <div id="summaryContainer" class="summary-container"></div>
-</section>
+
 </section>
 
+</section>
+
+
 <section id="history" class="page">
+
 <section class="content-card">
+
 <div class="section-title">
 <h2>📅 Monthly Progress Calendar</h2>
 <p>See your consistency throughout the month.</p>
@@ -137,68 +167,144 @@
 <span><i class="legend-progress"></i> Progress</span>
 <span><i class="legend-empty"></i> No record</span>
 </div>
+
 </section>
 
+
 <section class="content-card">
+
 <div class="section-title">
 <h2>Weekly Statistics</h2>
 <p>Your performance over the last 7 days</p>
 </div>
+
 <div id="weeklyStats" class="weekly-stats"></div>
+
 </section>
 
+
 <section class="content-card">
+
 <div class="section-title">
 <h2>History</h2>
 <p>Your recent progress</p>
 </div>
+
 <div id="historyList" class="history-list"></div>
-</section>
+
 </section>
 
+</section>
+
+
 <section id="settings" class="page">
+
 <section class="content-card">
+
 <div class="section-title">
 <h2>Customize Habits</h2>
 <p>Set your daily habits and targets.</p>
 </div>
 
+
 <div class="theme-setting">
+
 <h3>🌙 Appearance</h3>
 <p>Choose how BackOnTrack looks.</p>
+
 <button id="themeToggle">🌙 Dark Mode</button>
+
 </div>
+
 
 <div class="reminder-setting">
+
 <h3>🔔 Daily Reminder</h3>
 <p>Choose a time to remind yourself about your habits.</p>
+
 <input type="time" id="reminderTime">
+
 <button id="saveReminder">Save Reminder</button>
+
 <p id="reminderStatus"></p>
+
 </div>
+
+
+<!-- NEW CUSTOM HABIT SECTION -->
+
+<div class="add-habit-setting">
+
+<h3>➕ Create Your Own Habit</h3>
+
+<p>Add a personal habit to your BackOnTrack routine.</p>
+
+<input type="text" id="newHabitName" placeholder="Habit name">
+
+<input type="text" id="newHabitIcon" placeholder="Icon e.g. 📖">
+
+<input type="number" id="newHabitTarget" placeholder="Target" min="1">
+
+<select id="newHabitUnit">
+<option value="minutes">Minutes</option>
+<option value="hours">Hours</option>
+<option value="pages">Pages</option>
+<option value="glasses">Glasses</option>
+<option value="times">Times</option>
+<option value="items">Items</option>
+</select>
+
+<label class="maximum-option">
+<input type="checkbox" id="newHabitMaximum">
+Maximum target
+</label>
+
+<button id="addHabitButton">➕ Add Habit</button>
+
+<p id="addHabitStatus"></p>
+
+</div>
+
 
 <div id="settingsContainer"></div>
+
 <button id="saveSettings">Save Changes</button>
 
+
 <div class="export-setting">
+
 <h3>📤 Export Progress</h3>
+
 <p>Download your BackOnTrack data as a backup file.</p>
+
 <button id="exportData">Download My Data</button>
+
 <p id="exportStatus"></p>
+
 </div>
+
 
 <div class="backup-setting">
+
 <h3>🔄 Backup & Restore</h3>
+
 <p>Restore your BackOnTrack data from a previous backup.</p>
+
 <input type="file" id="restoreFile" accept=".json,application/json">
+
 <button id="restoreData">Restore Backup</button>
+
 <p id="restoreStatus"></p>
+
 </div>
 
 </section>
+
 </section>
+
 </main>
 
 <script src="script.js"></script>
+
 </body>
 </html>

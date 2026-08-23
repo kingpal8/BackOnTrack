@@ -536,27 +536,23 @@ card.innerHTML=`
 container.appendChild(card);
 });
 }
-
 function renderSettings(){
 const container=document.getElementById("settingsContainer");
-
 container.innerHTML="";
-
-habits.forEach(function(habit){
+habits.forEach(function(habit,index){
 const row=document.createElement("div");
-
-row.className="setting-row";
-
-row.innerHTML=`
-<input type="text" value="${habit.icon}" class="icon-input">
-<input type="text" value="${habit.name}" class="name-input">
-<input type="number" min="0" value="${habit.target}" class="target-input">
-`;
-
+row.className="habit-setting-row";
+row.innerHTML=`<input type="text" value="${habit.icon}" class="icon-input"><input type="text" value="${habit.name}" class="name-input"><input type="number" min="0" value="${habit.target}" class="target-input"><input type="text" value="${habit.unit}" class="unit-input"><button class="delete-habit-btn" title="Delete">🗑️</button>`;
+row.querySelector(".delete-habit-btn").addEventListener("click",function(){
+if(habits.length<=1){showMessage("⚠️ Keep at least one habit");return;}
+habits.splice(index,1);
+localStorage.setItem("backOnTrackHabits",JSON.stringify(habits));
+renderSettings();
+showMessage("🗑️ Habit deleted");
+});
 container.appendChild(row);
 });
 }
-
 const saveNotesButton=document.getElementById("saveNotes");
 
 if(saveNotesButton){
@@ -897,5 +893,14 @@ restoreStatus.textContent="❌ Could not read this backup file.";
 };
 
 reader.readAsText(file);
+});
+}
+const addHabit=document.getElementById("addHabit");
+if(addHabit){
+addHabit.addEventListener("click",function(){
+habits.push({name:"New Habit",icon:"⭐",target:10,unit:"minutes"});
+localStorage.setItem("backOnTrackHabits",JSON.stringify(habits));
+renderSettings();
+showMessage("➕ New habit added");
 });
 }
