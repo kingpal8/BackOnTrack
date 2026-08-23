@@ -3,33 +3,44 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>BackOnTrack</title>
+<meta name="theme-color" content="#374151">
+<meta name="description" content="BackOnTrack helps you build better habits, track your progress, maintain streaks, and stay consistent.">
+<meta name="keywords" content="BackOnTrack, habit tracker, productivity, daily habits, habit progress, consistency">
+<meta name="author" content="BackOnTrack">
+<meta name="robots" content="index,follow">
+<meta name="color-scheme" content="light dark">
+
+<meta property="og:title" content="BackOnTrack - Build Better Habits">
+<meta property="og:description" content="Track your habits, build streaks, and stay consistent with BackOnTrack.">
+<meta property="og:type" content="website">
+
+<title>BackOnTrack - Build Better Habits</title>
+
 <link rel="stylesheet" href="style.css">
+<link rel="manifest" href="manifest.json">
 </head>
 <body>
-
 <header>
+<div class="brand">
 <h1>BackOnTrack</h1>
 <p>Small steps. Stay consistent.</p>
-
-<nav>
-<button class="nav-btn active" data-page="dashboard">Dashboard</button>
-<button class="nav-btn" data-page="history">History</button>
-<button class="nav-btn" data-page="settings">Settings</button>
+</div>
+<nav aria-label="Main navigation">
+<button class="nav-btn active" data-page="dashboard" aria-label="Open Dashboard">🏠 Dashboard</button>
+<button class="nav-btn" data-page="history" aria-label="Open History">📊 History</button>
+<button class="nav-btn" data-page="settings" aria-label="Open Settings">⚙️ Settings</button>
 </nav>
 </header>
 
 <main>
-
 <section id="dashboard" class="page active-page">
-
 <section class="dashboard-header">
 <div>
+<span class="welcome-label">YOUR DAILY JOURNEY</span>
 <h2>Dashboard</h2>
 <p id="todayDate"></p>
 </div>
-
-<div class="streak">
+<div class="streak" title="Your current successful-day streak">
 <span>🔥</span>
 <strong id="streakCount">0</strong>
 <small>Day Streak</small>
@@ -43,111 +54,99 @@
 <strong id="levelNumber">Level 1</strong>
 <p id="levelTitle">🌱 Beginner</p>
 </div>
-
 <div class="xp-number" id="xpNumber">0 XP</div>
 </div>
-
-<div class="xp-bar">
+<div class="xp-bar" aria-label="Experience progress">
 <div id="xpFill"></div>
 </div>
-
 <p id="xpProgress">0 / 100 XP to next level</p>
 </section>
 
 <section class="progress-card">
 <div class="progress-top">
-
 <div>
+<span class="card-label">TODAY</span>
 <h3>Today's Progress</h3>
 <p id="progressText">0 of 3 habits completed</p>
 </div>
-
 <div class="score-box">
 <strong id="progressPercent">0%</strong>
 <div id="dailyScore">Score: 0/100</div>
 <div id="scoreMessage"></div>
 </div>
-
 </div>
-
-<div class="progress-bar">
+<div class="progress-bar" aria-label="Today's habit completion">
 <div id="progressFill"></div>
 </div>
 </section>
 
 <section class="motivation-card">
 <div class="motivation-icon">🌱</div>
-
 <div>
+<span class="card-label">A LITTLE REMINDER</span>
 <h3>Today's Reminder</h3>
-<p id="motivationText"></p>
+<p id="motivationText">Every small step counts. Keep moving forward.</p>
 </div>
 </section>
 
+<section class="habits-section">
+<div class="section-title">
+<span class="card-label">YOUR ROUTINE</span>
+<h2>🎯 Today's Habits</h2>
+<p>Complete your habits and build consistency.</p>
+</div>
 <section class="habits" id="habitsContainer"></section>
+</section>
 
 <section class="notes-card">
-
 <div class="section-title">
-<h2>Today's Notes</h2>
+<h2>📝 Today's Notes</h2>
 <p>Write something about your day.</p>
 </div>
-
-<textarea id="dailyNotes" placeholder="How was your day? What did you learn or improve?"></textarea>
-
+<textarea id="dailyNotes" maxlength="2000" placeholder="How was your day? What did you learn or improve?" aria-label="Today's notes"></textarea>
+<div class="notes-footer">
+<span>💡 Your notes are saved locally.</span>
 <button id="saveNotes">Save Note</button>
-
+</div>
+<p id="noteStatus" class="status-text"></p>
 </section>
 
 <section class="weekly-section">
-
 <div class="section-title">
-<h2>7-Day Overview</h2>
-<p>Your recent consistency</p>
+<h2>📅 7-Day Overview</h2>
+<p>Your recent consistency.</p>
 </div>
-
 <div id="weeklyOverview" class="weekly-overview"></div>
-
 </section>
 
 <section class="achievements-section">
-
 <div class="section-title">
 <h2>🏅 Achievements</h2>
-<p>Your milestones and badges</p>
+<p>Your milestones and badges.</p>
 </div>
-
 <div id="achievementsContainer" class="achievements-container"></div>
-
 </section>
 
 <section class="summary-section">
-
 <div class="section-title">
 <h2>📊 Personal Progress</h2>
-<p>Your overall progress</p>
+<p>Your overall progress.</p>
 </div>
-
 <div id="summaryContainer" class="summary-container"></div>
-
 </section>
-
 </section>
-
 
 <section id="history" class="page">
-
 <section class="content-card">
-
 <div class="section-title">
 <h2>📅 Monthly Progress Calendar</h2>
 <p>See your consistency throughout the month.</p>
 </div>
 
 <div class="calendar-controls">
-<button id="previousMonth">←</button>
+<button id="previousMonth" aria-label="Previous month">←</button>
 <h3 id="calendarMonth"></h3>
-<button id="nextMonth">→</button>
+<button id="nextMonth" aria-label="Next month">→</button>
 </div>
 
 <div class="calendar-weekdays">
@@ -167,85 +166,65 @@
 <span><i class="legend-progress"></i> Progress</span>
 <span><i class="legend-empty"></i> No record</span>
 </div>
-
 </section>
 
-
 <section class="content-card">
-
 <div class="section-title">
-<h2>Weekly Statistics</h2>
-<p>Your performance over the last 7 days</p>
+<h2>📈 Weekly Statistics</h2>
+<p>Your performance over the last 7 days.</p>
 </div>
-
 <div id="weeklyStats" class="weekly-stats"></div>
-
 </section>
-
 
 <section class="content-card">
-
 <div class="section-title">
-<h2>History</h2>
-<p>Your recent progress</p>
+<h2>📜 History</h2>
+<p>Your recent progress.</p>
 </div>
-
 <div id="historyList" class="history-list"></div>
-
 </section>
-
 </section>
-
 
 <section id="settings" class="page">
-
 <section class="content-card">
-
 <div class="section-title">
-<h2>Customize Habits</h2>
-<p>Set your daily habits and targets.</p>
+<span class="card-label">PERSONALIZE</span>
+<h2>⚙️ Settings</h2>
+<p>Customize BackOnTrack to fit your routine.</p>
 </div>
-
 
 <div class="theme-setting">
-
 <h3>🌙 Appearance</h3>
-<p>Choose how BackOnTrack looks.</p>
-
+<p>Switch between light and dark mode.</p>
 <button id="themeToggle">🌙 Dark Mode</button>
-
 </div>
-
 
 <div class="reminder-setting">
-
 <h3>🔔 Daily Reminder</h3>
 <p>Choose a time to remind yourself about your habits.</p>
-
-<input type="time" id="reminderTime">
-
+<div class="inline-setting">
+<input type="time" id="reminderTime" aria-label="Daily reminder time">
 <button id="saveReminder">Save Reminder</button>
-
-<p id="reminderStatus"></p>
-
+</div>
+<p id="reminderStatus" class="status-text"></p>
 </div>
 
-
-<!-- NEW CUSTOM HABIT SECTION -->
+<div class="habit-management">
+<h3>🛠️ Manage Habits</h3>
+<p>Edit, delete, or create your own habits.</p>
+<div id="settingsContainer"></div>
+<button id="saveSettings">💾 Save Changes</button>
+<p id="habitSettingsStatus" class="status-text"></p>
+</div>
 
 <div class="add-habit-setting">
-
 <h3>➕ Create Your Own Habit</h3>
-
 <p>Add a personal habit to your BackOnTrack routine.</p>
-
-<input type="text" id="newHabitName" placeholder="Habit name">
-
-<input type="text" id="newHabitIcon" placeholder="Icon e.g. 📖">
-
-<input type="number" id="newHabitTarget" placeholder="Target" min="1">
-
-<select id="newHabitUnit">
+<div class="habit-form">
+<input type="text" id="newHabitName" maxlength="40" placeholder="Habit name" aria-label="New habit name">
+<input type="text" id="newHabitIcon" maxlength="4" placeholder="Icon e.g. 📖" aria-label="New habit icon">
+<input type="number" id="newHabitTarget" placeholder="Target" min="1" max="100000" aria-label="New habit target">
+<select id="newHabitUnit" aria-label="New habit unit">
 <option value="minutes">Minutes</option>
 <option value="hours">Hours</option>
 <option value="pages">Pages</option>
@@ -253,58 +232,57 @@
 <option value="times">Times</option>
 <option value="items">Items</option>
 </select>
-
 <label class="maximum-option">
 <input type="checkbox" id="newHabitMaximum">
 Maximum target
 </label>
-
-<button id="addHabitButton">➕ Add Habit</button>
-
-<p id="addHabitStatus"></p>
-
 </div>
-
-
-<div id="settingsContainer"></div>
-
-<button id="saveSettings">Save Changes</button>
-
+<button id="addHabitButton" class="add-habit-btn">➕ Add Habit</button>
+<p id="addHabitStatus" class="status-text"></p>
+</div>
 
 <div class="export-setting">
-
 <h3>📤 Export Progress</h3>
-
-<p>Download your BackOnTrack data as a backup file.</p>
-
+<p>Download all your BackOnTrack data as a backup.</p>
 <button id="exportData">Download My Data</button>
-
-<p id="exportStatus"></p>
-
+<p id="exportStatus" class="status-text"></p>
 </div>
-
 
 <div class="backup-setting">
-
 <h3>🔄 Backup & Restore</h3>
-
-<p>Restore your BackOnTrack data from a previous backup.</p>
-
-<input type="file" id="restoreFile" accept=".json,application/json">
-
+<p>Restore your habits, progress, notes, theme and reminder.</p>
+<input type="file" id="restoreFile" accept=".json,application/json" aria-label="Select backup file">
 <button id="restoreData">Restore Backup</button>
-
-<p id="restoreStatus"></p>
-
+<p id="restoreStatus" class="status-text"></p>
 </div>
 
+<div class="danger-setting">
+<h3>🗑️ Reset App Data</h3>
+<p>Delete all saved progress and return to the default habits.</p>
+<button id="resetData" class="danger-btn">Reset Everything</button>
+<p class="danger-warning">⚠️ This action cannot be undone unless you have an exported backup.</p>
+</div>
 </section>
-
 </section>
-
 </main>
 
+<div id="saveMessage" class="toast" role="status" aria-live="polite"></div>
+
+<footer class="app-footer">
+<p>BackOnTrack • Small steps, lasting progress.</p>
+<small>Your data stays on this device.</small>
+</footer>
 <script src="script.js"></script>
+
+<script>
+if("serviceWorker" in navigator){
+window.addEventListener("load",()=>{
+navigator.serviceWorker.register("./service-worker.js")
+.then(()=>console.log("BackOnTrack service worker registered"))
+.catch(error=>console.error("Service worker registration failed:",error));
+});
+}
+</script>
 
 </body>
 </html>

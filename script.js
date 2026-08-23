@@ -1,152 +1,141 @@
+"use strict";
+
 const defaultHabits=[
 {name:"Study",icon:"📚",target:25,unit:"minutes"},
 {name:"Meditation",icon:"🧘",target:10,unit:"minutes"},
 {name:"Social Media",icon:"📱",target:2,unit:"hours",type:"maximum"}
 ];
 
-let habits=JSON.parse(localStorage.getItem("backOnTrackHabits"))||defaultHabits;
-let savedData=JSON.parse(localStorage.getItem("backOnTrackData"))||{};
-let savedNotes=JSON.parse(localStorage.getItem("backOnTrackNotes"))||{};
+let habits=load("backOnTrackHabits",defaultHabits);
+let savedData=load("backOnTrackData",{});
+let savedNotes=load("backOnTrackNotes",{});
+let calendarDate=new Date();
+let messageTimer=null;
 
-habits=habits.map(function(habit,index){
-if(index===0)return{name:habit.name||"Study",icon:habit.icon||"📚",target:25,unit:"minutes"};
-if(index===1)return{name:habit.name||"Meditation",icon:habit.icon||"🧘",target:10,unit:"minutes"};
-if(index===2)return{name:habit.name||"Social Media",icon:habit.icon||"📱",target:2,unit:"hours",type:"maximum"};
-return habit;
-});
+function load(key,fallback){
+try{
+const data=localStorage.getItem(key);
+return data!==null?JSON.parse(data):JSON.parse(JSON.stringify(fallback));
+}catch(error){
+console.error("Load error:",key,error);
+return JSON.parse(JSON.stringify(fallback));
+}
+}
 
-localStorage.setItem("backOnTrackHabits",JSON.stringify(habits));
-
-function getLocalDate(){
-const now=new Date();
-return `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,"0")}-${String(now.getDate()).padStart(2,"0")}`;
+function save(key,value){
+try{
+localStorage.setItem(key,JSON.stringify(value));
+return true;
+}catch(error){
+console.error("Save error:",key,error);
+return false;
+}
 }
 
 function getDateKey(date){
-return `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,"0")}-${String(date.getDate()).padStart(2,"0")}`;
+return date.getFullYear()+"-"+String(date.getMonth()+1).padStart(2,"0")+"-"+String(date.getDate()).padStart(2,"0");
 }
 
-const today=getLocalDate();
+function getLocalDate(){
+return getDateKey(new Date());
+}
 
-if(!savedData[today])savedData[today]=[null,null,null];
+function escapeHTML(value){
+return String(value??"").replace(/[&<>"']/g,char=>({
+"&":"&amp;",
+"<":"&lt;",
+">":"&gt;",
+'"':"&quot;",
+"'":"&#039;"
+}[char]));
+}
 
-const todayProgress=savedData[today];
-
-const motivationMessages=[
-"You don't need to be perfect. Just keep moving.",
-"Small progress is still progress.",
-"One good day can become a good habit.",
-"Focus on what you can do today.",
-"Consistency beats motivation.",
-"You are building a better version of yourself.",
-"Don't break the promise you made to yourself.",
-"Start small. Stay consistent. Keep going.",
-"Your future self will thank you.",
-"A little effort today makes tomorrow easier."
-];
-
-const dayNumber=Math.floor(new Date(today+"T00:00:00").getTime()/86400000);
-
-document.getElementById("motivationText").textContent=motivationMessages[dayNumber%motivationMessages.length];
-
-document.getElementById("todayDate").textContent=new Date().toLocaleDateString("en-IN",{weekday:"long",day:"numeric",month:"long",year:"numeric"});
-
-const notesBox=document.getElementById("dailyNotes");
-
-if(notesBox)notesBox.value=savedNotes[today]||"";
+function escapeAttr(value){
+return escapeHTML(value);
+}
 
 function showMessage(message){
-let box=document.getElementById("saveMessage");
-
-if(!box){
-box=document.createElement("div");
-box.id="saveMessage";
-box.style.position="fixed";
-box.style.bottom="25px";
-box.style.left="50%";
-box.style.transform="translateX(-50%)";
-box.style.background="#1f2937";
-box.style.color="white";
-box.style.padding="12px 20px";
-box.style.borderRadius="10px";
-box.style.fontSize="14px";
-box.style.fontWeight="bold";
-box.style.zIndex="1000";
-box.style.opacity="0";
-box.style.transition="opacity .3s";
-document.body.appendChild(box);
-}
-
+const box=document.getElementById("saveMessage");
+if(!box)return;
 box.textContent=message;
-box.style.opacity="1";
-
-clearTimeout(window.messageTimer);
-
-window.messageTimer=setTimeout(function(){
-box.style.opacity="0";
-},2000);
+box.classList.add("show");
+clearTimeout(messageTimer);
+messageTimer=setTimeout(()=>{
+box.classList.remove("show");
+},2200);
 }
 
-function isHabitComplete(index,progress=todayProgress){
-const value=progress[index];
-
-if(value===null||value===undefined)return false;
-
-const habit=habits[index];
-
-if(habit.type==="maximum")return value<=habit.target;
-
-return value>=habit.target;
+function getTodayProgress(){
+const today=getLocalDate();
+if(!Array.isArray(savedData[today])){
+savedData[today]=Array(habits.length).fill(null);
+}
+while(savedData[today].length<habits.length){
+savedData[today].push(null);
+}
+if(savedData[today].length>habits.length){
+savedData[today]=savedData[today].slice(0,habits.length);
+}
+return savedData[today];
 }
 
-function getHabitPercentage(index,progress=todayProgress){
+function isHabitComplete(index,progress){
+progress=progress||getTodayProgress();
+const habit=habits[index];
 const value=progress[index];
 
-if(value===null||value===undefined)return 0;
-
-const habit=habits[index];
+if(!habit||value===null||value===undefined)return false;
 
 if(habit.type==="maximum"){
-if(value<=habit.target)return 100;
-return Math.max(0,Math.round((habit.target/value)*100));
+return Number(value)<=Number(habit.target);
 }
 
-return Math.min(100,Math.round((value/habit.target)*100));
+return Number(value)>=Number(habit.target);
 }
 
-function getHabitScore(index,progress=todayProgress){
-return getHabitPercentage(index,progress);
+function getHabitPercentage(index,progress){
+progress=progress||getTodayProgress();
+
+const habit=habits[index];
+const value=progress[index];
+
+if(!habit||value===null||value===undefined)return 0;
+
+if(habit.type==="maximum"){
+if(Number(value)<=Number(habit.target))return 100;
+if(Number(value)<=0)return 100;
+return Math.max(0,Math.round(Number(habit.target)/Number(value)*100));
 }
 
-function calculateDailyScore(progress=todayProgress){
+if(Number(habit.target)<=0)return 0;
+
+return Math.min(100,Math.round(Number(value)/Number(habit.target)*100));
+}
+
+function calculateDailyScore(progress){
+progress=progress||[];
+
+if(!habits.length)return 0;
+
 let total=0;
 
-habits.forEach(function(habit,index){
-total+=getHabitScore(index,progress);
+habits.forEach((habit,index)=>{
+total+=getHabitPercentage(index,progress);
 });
 
-return habits.length?Math.round(total/habits.length):0;
-}
-
-function updateScoreMessage(score){
-const message=document.getElementById("scoreMessage");
-
-if(!message)return;
-
-if(score>=80)message.textContent="🌟 Excellent!";
-else if(score>=60)message.textContent="👍 Good!";
-else if(score>=40)message.textContent="💪 Keep Going!";
-else message.textContent="🌱 Let's Start!";
+return Math.round(total/habits.length);
 }
 
 function isSuccessfulDay(progress){
+if(!Array.isArray(progress)||!habits.length)return false;
+
 let completed=0;
 
-habits.forEach(function(habit,index){
+habits.forEach((habit,index)=>{
 if(isHabitComplete(index,progress))completed++;
 });
 
-return completed>=2;
+return completed>=Math.min(2,habits.length);
 }
 
 function calculateStreak(){
@@ -154,9 +143,10 @@ let streak=0;
 let date=new Date();
 
 while(true){
-const dateKey=getDateKey(date);
+const key=getDateKey(date);
+const progress=savedData[key];
 
-if(!savedData[dateKey]||!isSuccessfulDay(savedData[dateKey]))break;
+if(!progress||!isSuccessfulDay(progress))break;
 
 streak++;
 date.setDate(date.getDate()-1);
@@ -165,93 +155,136 @@ date.setDate(date.getDate()-1);
 return streak;
 }
 
+function updateScoreMessage(score){
+const element=document.getElementById("scoreMessage");
+if(!element)return;
+
+if(score>=80){
+element.textContent="🌟 Excellent!";
+}else if(score>=60){
+element.textContent="👍 Good!";
+}else if(score>=40){
+element.textContent="💪 Keep Going!";
+}else{
+element.textContent="🌱 Let's Start!";
+}
+}
+
+function updateTodayDate(){
+const element=document.getElementById("todayDate");
+if(!element)return;
+
+element.textContent=new Date().toLocaleDateString("en-IN",{
+weekday:"long",
+day:"numeric",
+month:"long",
+year:"numeric"
+});
+}
+
+function updateMotivation(){
+const element=document.getElementById("motivationText");
+if(!element)return;
+
+const messages=[
+"Every small step counts. 🌱",
+"Consistency is more important than perfection.",
+"Keep going. You're building a better routine.",
+"One habit at a time. You've got this! 💪",
+"Your future self will thank you.",
+"Progress doesn't have to be perfect.",
+"Show up today. That's already a win. 🏆"
+];
+
+const day=new Date().getDate();
+element.textContent=messages[day%messages.length];
+}
+
 function renderHabits(){
 const container=document.getElementById("habitsContainer");
+if(!container)return;
 
 container.innerHTML="";
 
-habits.forEach(function(habit,index){
+const progress=getTodayProgress();
+
+habits.forEach((habit,index)=>{
 const card=document.createElement("div");
 card.className="habit-card";
 
-const value=todayProgress[index];
-const completed=isHabitComplete(index);
-const percentage=getHabitPercentage(index);
+const value=progress[index];
+const completed=isHabitComplete(index,progress);
+const percentage=getHabitPercentage(index,progress);
 
 const targetText=habit.type==="maximum"
-?`Stay below ${habit.target} ${habit.unit}`
-:`Target: ${habit.target} ${habit.unit}`;
+?`Stay below ${habit.target} ${escapeHTML(habit.unit)}`
+:`Target: ${habit.target} ${escapeHTML(habit.unit)}`;
 
-let progressText="No result yet";
+let result="No result yet";
 
 if(value!==null&&value!==undefined){
 if(habit.type==="maximum"){
-progressText=completed
-?`${value} ${habit.unit} used • Within target`
-:`${value} ${habit.unit} used • Above target`;
+result=completed
+?`${value} ${escapeHTML(habit.unit)} used • Within target`
+:`${value} ${escapeHTML(habit.unit)} used • Above target`;
 }else{
-progressText=`${value} / ${habit.target} ${habit.unit}`;
+result=`${value} / ${habit.target} ${escapeHTML(habit.unit)}`;
 }
 }
 
 card.innerHTML=`
-<div class="habit-icon">${habit.icon}</div>
-<h3>${habit.name}</h3>
+<div class="habit-icon">${escapeHTML(habit.icon)}</div>
+<h3>${escapeHTML(habit.name)}</h3>
 <p>${targetText}</p>
-<input type="number" min="0" class="goal-input" placeholder="Enter actual ${habit.unit}" value="${value??""}">
-<div class="goal-result">${completed?"Goal achieved ✓":progressText}</div>
+<input type="number" min="0" step="any" class="goal-input" placeholder="Enter actual ${escapeAttr(habit.unit)}" value="${value??""}">
+<div class="goal-result">${completed?"Goal achieved ✓":result}</div>
 <div class="habit-progress">
 <div class="habit-progress-fill" style="width:${percentage}%"></div>
 </div>
 <div class="habit-percentage">${percentage}%</div>
-<button class="complete-btn ${completed?"completed":""}">${completed?"Edit Result":"Save Result"}</button>
+<button class="complete-btn ${completed?"completed":""}">
+${completed?"Edit Result":"Save Result"}
+</button>
 `;
 
 const input=card.querySelector(".goal-input");
 const button=card.querySelector(".complete-btn");
 
-if(completed)input.disabled=true;
+button.addEventListener("click",()=>{
+const currentValue=input.value.trim();
 
-button.addEventListener("click",function(){
-
-if(completed&&input.disabled){
-input.disabled=false;
-input.focus();
-button.textContent="Save Changes";
-button.classList.remove("completed");
-return;
-}
-
-if(input.value===""){
-todayProgress[index]=null;
-savedData[today]=todayProgress;
-
-localStorage.setItem("backOnTrackData",JSON.stringify(savedData));
-
+if(currentValue===""){
+progress[index]=null;
+save("backOnTrackData",savedData);
 renderHabits();
-updateDashboard();
-
+updateAll();
 showMessage("✓ Result removed");
-
 return;
 }
 
-const actualValue=Number(input.value);
+const number=Number(currentValue);
 
-if(actualValue<0){
-alert("Please enter a valid value.");
+if(!Number.isFinite(number)||number<0){
+showMessage("⚠️ Enter a valid value");
 return;
 }
 
-todayProgress[index]=actualValue;
-savedData[today]=todayProgress;
+const wasCompleted=isHabitComplete(index,progress);
 
-localStorage.setItem("backOnTrackData",JSON.stringify(savedData));
+progress[index]=number;
+
+save("backOnTrackData",savedData);
 
 renderHabits();
-updateDashboard();
+updateAll();
 
-showMessage(completed?"✓ Result updated successfully":"✓ Result saved successfully");
+showMessage(wasCompleted?"✓ Result updated":"✓ Result saved");
+});
+
+input.addEventListener("keydown",event=>{
+if(event.key==="Enter"){
+button.click();
+}
 });
 
 container.appendChild(card);
@@ -259,160 +292,146 @@ container.appendChild(card);
 }
 
 function updateDashboard(){
+const progress=getTodayProgress();
+
 let completed=0;
 
-habits.forEach(function(habit,index){
-if(isHabitComplete(index))completed++;
+habits.forEach((habit,index)=>{
+if(isHabitComplete(index,progress))completed++;
 });
 
-const percent=Math.round((completed/habits.length)*100);
-const score=calculateDailyScore();
+const percent=habits.length
+?Math.round(completed/habits.length*100)
+:0;
 
-document.getElementById("progressText").textContent=`${completed} of ${habits.length} habits completed`;
-document.getElementById("progressPercent").textContent=`${percent}%`;
-document.getElementById("dailyScore").textContent=`Score: ${score}/100`;
+const score=calculateDailyScore(progress);
+
+const progressText=document.getElementById("progressText");
+const progressPercent=document.getElementById("progressPercent");
+const dailyScore=document.getElementById("dailyScore");
+const progressFill=document.getElementById("progressFill");
+const streakCount=document.getElementById("streakCount");
+
+if(progressText){
+progressText.textContent=`${completed} of ${habits.length} habits completed`;
+}
+
+if(progressPercent){
+progressPercent.textContent=percent+"%";
+}
+
+if(dailyScore){
+dailyScore.textContent=`Score: ${score}/100`;
+}
+
+if(progressFill){
+progressFill.style.width=percent+"%";
+}
+
+if(streakCount){
+streakCount.textContent=calculateStreak();
+}
 
 updateScoreMessage(score);
+}
 
-document.getElementById("progressFill").style.width=`${percent}%`;
-document.getElementById("streakCount").textContent=calculateStreak();
+function updateNotes(){
+const box=document.getElementById("dailyNotes");
+if(!box)return;
 
-updateHistory();
+const today=getLocalDate();
+box.value=savedNotes[today]||"";
+}
+
+function updateAll(){
+updateTodayDate();
+updateMotivation();
+renderHabits();
+updateDashboard();
 updateWeeklyOverview();
 updateWeeklyStats();
 updateAchievements();
 updateSummary();
+updateHistory();
+updateXPSystem();
+renderMonthlyCalendar();
 }
-
-function updateHistory(){
-const historyList=document.getElementById("historyList");
-
-historyList.innerHTML="";
-
-const dates=Object.keys(savedData).sort().reverse();
-
-if(dates.length===0){
-historyList.innerHTML=`<div class="history-empty">📭 No history yet. Start completing your habits today!</div>`;
-return;
-}
-
-dates.slice(0,30).forEach(function(dateKey){
-const progress=savedData[dateKey];
-
-let completed=0;
-
-habits.forEach(function(habit,index){
-if(isHabitComplete(index,progress))completed++;
-});
-
-const score=calculateDailyScore(progress);
-const successful=isSuccessfulDay(progress);
-const note=savedNotes[dateKey];
-
-const dateText=new Date(dateKey+"T00:00:00").toLocaleDateString("en-IN",{
-weekday:"long",
-day:"numeric",
-month:"long",
-year:"numeric"
-});
-
-const historyDay=document.createElement("div");
-historyDay.className="history-day";
-
-historyDay.innerHTML=`
-<div class="history-main">
-<div class="history-header">
-<strong>📅 ${dateText}</strong>
-<span class="${successful?"history-success":"history-incomplete"}">${successful?"✓ Successful":"○ Incomplete"}</span>
-</div>
-<div class="history-details">
-<span>✅ ${completed}/${habits.length} habits</span>
-<span>🎯 Score: ${score}/100</span>
-</div>
-<div class="history-score-bar">
-<div style="width:${score}%"></div>
-</div>
-${note?`<div class="history-note">📝 ${note}</div>`:`<div class="history-note no-note">📝 No note added</div>`}
-</div>
-`;
-
-historyList.appendChild(historyDay);
-});
-}
-
 function updateWeeklyOverview(){
-const weeklyOverview=document.getElementById("weeklyOverview");
+const container=document.getElementById("weeklyOverview");
+if(!container)return;
 
-weeklyOverview.innerHTML="";
+container.innerHTML="";
 
 for(let i=6;i>=0;i--){
 const date=new Date();
 date.setDate(date.getDate()-i);
 
-const dateKey=getDateKey(date);
-const progress=savedData[dateKey];
+const key=getDateKey(date);
+const progress=savedData[key];
 
-const weekDay=document.createElement("div");
-weekDay.className="week-day";
+const wrap=document.createElement("div");
+wrap.className="week-day";
 
-const dayName=document.createElement("div");
-dayName.className="day-name";
-dayName.textContent=date.toLocaleDateString("en-IN",{weekday:"short"});
+const name=document.createElement("div");
+name.className="day-name";
+name.textContent=date.toLocaleDateString("en-IN",{weekday:"short"});
 
 const circle=document.createElement("div");
 circle.className="day-circle";
 
-if(progress){
-if(isSuccessfulDay(progress)){
+if(progress&&isSuccessfulDay(progress)){
 circle.classList.add("day-success");
 circle.textContent="✓";
-}else{
+}else if(progress&&progress.some(v=>v!==null&&v!==undefined)){
 circle.classList.add("day-failed");
-circle.textContent="×";
-}
+circle.textContent="•";
 }else{
 circle.textContent="–";
 }
 
-if(dateKey===today)circle.classList.add("day-today");
+if(key===getLocalDate()){
+circle.classList.add("day-today");
+}
 
-weekDay.appendChild(dayName);
-weekDay.appendChild(circle);
-weeklyOverview.appendChild(weekDay);
+wrap.append(name,circle);
+container.appendChild(wrap);
 }
 }
 
 function updateWeeklyStats(){
 const container=document.getElementById("weeklyStats");
+if(!container)return;
 
 container.innerHTML="";
 
 let totalCompleted=0;
-const totalPossible=habits.length*7;
+const possible=habits.length*7;
 
-habits.forEach(function(habit,index){
-let completedDays=0;
+habits.forEach((habit,index)=>{
+let days=0;
 
 for(let i=0;i<7;i++){
 const date=new Date();
 date.setDate(date.getDate()-i);
 
-const dateKey=getDateKey(date);
-const progress=savedData[dateKey];
+const key=getDateKey(date);
+const progress=savedData[key];
 
-if(progress&&isHabitComplete(index,progress))completedDays++;
+if(progress&&isHabitComplete(index,progress)){
+days++;
+}
 }
 
-totalCompleted+=completedDays;
+totalCompleted+=days;
 
-const percent=Math.round((completedDays/7)*100);
+const percent=Math.round(days/7*100);
 
 const card=document.createElement("div");
 card.className="stat-card";
 
 card.innerHTML=`
-<h3>${habit.icon} ${habit.name}</h3>
-<p>Completed ${completedDays} of 7 days</p>
+<h3>${escapeHTML(habit.icon)} ${escapeHTML(habit.name)}</h3>
+<p>Completed ${days} of 7 days</p>
 <div class="stat-number">${percent}%</div>
 <div class="stat-progress">
 <div class="stat-progress-fill" style="width:${percent}%"></div>
@@ -422,10 +441,12 @@ card.innerHTML=`
 container.appendChild(card);
 });
 
-const overallPercent=Math.round((totalCompleted/totalPossible)*100);
+const overallPercent=possible
+?Math.round(totalCompleted/possible*100)
+:0;
 
 const overall=document.createElement("div");
-overall.className="stat-card overall-stat";
+overall.className="stat-card";
 
 overall.innerHTML=`
 <h3>🎯 Overall Consistency</h3>
@@ -441,43 +462,63 @@ container.appendChild(overall);
 
 function updateAchievements(){
 const container=document.getElementById("achievementsContainer");
-
 if(!container)return;
 
 container.innerHTML="";
 
-const dates=Object.keys(savedData);
-
-let firstHabit=false;
+let firstStep=false;
 let perfectDay=false;
-let streak3=calculateStreak()>=3;
-let streak7=calculateStreak()>=7;
 
-dates.forEach(function(dateKey){
-const progress=savedData[dateKey];
+Object.values(savedData).forEach(progress=>{
+if(progress&&progress.some(v=>v!==null&&v!==undefined)){
+firstStep=true;
+}
 
-if(progress&&progress.some(function(value){
-return value!==null&&value!==undefined;
-}))firstHabit=true;
-
-if(progress&&calculateDailyScore(progress)===100)perfectDay=true;
+if(progress&&calculateDailyScore(progress)===100){
+perfectDay=true;
+}
 });
 
+const streak=calculateStreak();
+
 const achievements=[
-{icon:"🌱",name:"First Step",text:"Complete your first habit",unlocked:firstHabit},
-{icon:"🔥",name:"3-Day Streak",text:"Reach a 3-day streak",unlocked:streak3},
-{icon:"🏆",name:"7-Day Streak",text:"Reach a 7-day streak",unlocked:streak7},
-{icon:"💯",name:"Perfect Day",text:"Score 100/100",unlocked:perfectDay}
+{
+icon:"🌱",
+name:"First Step",
+text:"Complete your first habit",
+unlocked:firstStep
+},
+{
+icon:"🔥",
+name:"3-Day Streak",
+text:"Reach a 3-day streak",
+unlocked:streak>=3
+},
+{
+icon:"🏆",
+name:"7-Day Streak",
+text:"Reach a 7-day streak",
+unlocked:streak>=7
+},
+{
+icon:"💯",
+name:"Perfect Day",
+text:"Score 100/100",
+unlocked:perfectDay
+}
 ];
 
-achievements.forEach(function(achievement){
+achievements.forEach(achievement=>{
 const card=document.createElement("div");
-card.className="achievement-card"+(achievement.unlocked?"":" achievement-locked");
+
+card.className=
+"achievement-card"+
+(achievement.unlocked?"":" achievement-locked");
 
 card.innerHTML=`
 <div class="achievement-icon">${achievement.icon}</div>
-<h3>${achievement.name}</h3>
-<p>${achievement.unlocked?"Unlocked!":achievement.text}</p>
+<h3>${escapeHTML(achievement.name)}</h3>
+<p>${achievement.unlocked?"Unlocked!":escapeHTML(achievement.text)}</p>
 `;
 
 container.appendChild(card);
@@ -486,216 +527,150 @@ container.appendChild(card);
 
 function updateSummary(){
 const container=document.getElementById("summaryContainer");
-
 if(!container)return;
 
-const dates=Object.keys(savedData);
-
-let successfulDays=0;
+let successful=0;
 let totalScore=0;
-let scoredDays=0;
+let recordedDays=0;
 
-dates.forEach(function(dateKey){
-const progress=savedData[dateKey];
+Object.values(savedData).forEach(progress=>{
+if(!Array.isArray(progress))return;
 
-if(isSuccessfulDay(progress))successfulDays++;
+if(isSuccessfulDay(progress)){
+successful++;
+}
 
-const hasData=progress.some(function(value){
-return value!==null&&value!==undefined;
-});
-
-if(hasData){
+if(progress.some(v=>v!==null&&v!==undefined)){
 totalScore+=calculateDailyScore(progress);
-scoredDays++;
+recordedDays++;
 }
 });
 
-const averageScore=scoredDays?Math.round(totalScore/scoredDays):0;
+const average=recordedDays
+?Math.round(totalScore/recordedDays)
+:0;
 
-const achievements=document.querySelectorAll(".achievement-card:not(.achievement-locked)").length;
+const unlocked=document.querySelectorAll(
+".achievement-card:not(.achievement-locked)"
+).length;
 
-const summaryItems=[
-{icon:"🔥",value:calculateStreak(),label:"Current Streak"},
-{icon:"🎯",value:averageScore+"/100",label:"Average Score"},
-{icon:"✅",value:successfulDays,label:"Successful Days"},
-{icon:"🏅",value:achievements+"/4",label:"Achievements"}
+const items=[
+["🔥",calculateStreak(),"Current Streak"],
+["🎯",average+"/100","Average Score"],
+["✅",successful,"Successful Days"],
+["🏅",unlocked+"/4","Achievements"]
 ];
 
 container.innerHTML="";
 
-summaryItems.forEach(function(item){
+items.forEach(item=>{
 const card=document.createElement("div");
 card.className="summary-card";
 
 card.innerHTML=`
-<div class="summary-icon">${item.icon}</div>
-<strong>${item.value}</strong>
-<span>${item.label}</span>
+<div class="summary-icon">${item[0]}</div>
+<strong>${escapeHTML(item[1])}</strong>
+<span>${escapeHTML(item[2])}</span>
 `;
 
 container.appendChild(card);
 });
 }
-function renderSettings(){
-const container=document.getElementById("settingsContainer");
-container.innerHTML="";
-habits.forEach(function(habit,index){
-const row=document.createElement("div");
-row.className="habit-setting-row";
-row.innerHTML=`<input type="text" value="${habit.icon}" class="icon-input"><input type="text" value="${habit.name}" class="name-input"><input type="number" min="0" value="${habit.target}" class="target-input"><input type="text" value="${habit.unit}" class="unit-input"><button class="delete-habit-btn" title="Delete">🗑️</button>`;
-row.querySelector(".delete-habit-btn").addEventListener("click",function(){
-if(habits.length<=1){showMessage("⚠️ Keep at least one habit");return;}
-habits.splice(index,1);
-localStorage.setItem("backOnTrackHabits",JSON.stringify(habits));
-renderSettings();
-showMessage("🗑️ Habit deleted");
-});
-container.appendChild(row);
-});
-}
-const saveNotesButton=document.getElementById("saveNotes");
 
-if(saveNotesButton){
-saveNotesButton.addEventListener("click",function(){
-const note=notesBox.value.trim();
+function updateHistory(){
+const list=document.getElementById("historyList");
+if(!list)return;
 
-if(note==="")delete savedNotes[today];
-else savedNotes[today]=note;
+list.innerHTML="";
 
-localStorage.setItem("backOnTrackNotes",JSON.stringify(savedNotes));
+const dates=Object.keys(savedData)
+.filter(key=>Array.isArray(savedData[key]))
+.sort()
+.reverse();
 
-updateHistory();
-
-showMessage(note===""?"✓ Note removed":"✓ Note saved successfully");
-});
-}
-document.getElementById("saveSettings").addEventListener("click",function(){
-const rows=document.querySelectorAll(".habit-setting-row");
-
-rows.forEach(function(row,index){
-habits[index].icon=row.querySelector(".icon-input").value||habits[index].icon;
-habits[index].name=row.querySelector(".name-input").value||habits[index].name;
-habits[index].target=Number(row.querySelector(".target-input").value)||habits[index].target;
-habits[index].unit=row.querySelector(".unit-input").value||habits[index].unit;
-});
-
-localStorage.setItem("backOnTrackHabits",JSON.stringify(habits));
-
-renderSettings();
-renderHabits();
-updateDashboard();
-
-showMessage("✓ Settings saved successfully");
-});
-document.querySelectorAll(".nav-btn").forEach(function(button){
-button.addEventListener("click",function(){
-const pageName=button.dataset.page;
-
-document.querySelectorAll(".nav-btn").forEach(function(btn){
-btn.classList.remove("active");
-});
-
-document.querySelectorAll(".page").forEach(function(page){
-page.classList.remove("active-page");
-});
-
-button.classList.add("active");
-document.getElementById(pageName).classList.add("active-page");
-});
-});
-
-savedData[today]=todayProgress;
-
-localStorage.setItem("backOnTrackData",JSON.stringify(savedData));
-
-renderHabits();
-renderSettings();
-updateDashboard();
-const themeToggle=document.getElementById("themeToggle");
-const savedTheme=localStorage.getItem("backOnTrackTheme");
-
-if(savedTheme==="dark"){
-document.body.classList.add("dark-mode");
-if(themeToggle)themeToggle.textContent="☀️ Light Mode";
-}
-
-if(themeToggle){
-themeToggle.addEventListener("click",function(){
-document.body.classList.toggle("dark-mode");
-
-const darkMode=document.body.classList.contains("dark-mode");
-
-if(darkMode){
-localStorage.setItem("backOnTrackTheme","dark");
-themeToggle.textContent="☀️ Light Mode";
-showMessage("🌙 Dark mode enabled");
-}else{
-localStorage.setItem("backOnTrackTheme","light");
-themeToggle.textContent="🌙 Dark Mode";
-showMessage("☀️ Light mode enabled");
-}
-});
-}
-const reminderTime=document.getElementById("reminderTime");
-const saveReminder=document.getElementById("saveReminder");
-const reminderStatus=document.getElementById("reminderStatus");
-
-const savedReminder=localStorage.getItem("backOnTrackReminder");
-
-if(reminderTime&&savedReminder){
-reminderTime.value=savedReminder;
-reminderStatus.textContent="🔔 Reminder set for "+savedReminder;
-}
-
-if(saveReminder){
-saveReminder.addEventListener("click",function(){
-if(!reminderTime.value){
-reminderStatus.textContent="Please select a time.";
+if(!dates.length){
+list.innerHTML=`
+<div class="history-day">
+📭 No history yet. Start completing your habits today!
+</div>
+`;
 return;
 }
 
-localStorage.setItem("backOnTrackReminder",reminderTime.value);
+dates.slice(0,30).forEach(key=>{
+const progress=savedData[key];
 
-if("Notification" in window){
-Notification.requestPermission();
+let completed=0;
+
+habits.forEach((habit,index)=>{
+if(isHabitComplete(index,progress)){
+completed++;
 }
+});
 
-reminderStatus.textContent="🔔 Reminder saved for "+reminderTime.value;
-showMessage("✓ Daily reminder saved");
+const score=calculateDailyScore(progress);
+const successful=isSuccessfulDay(progress);
+const note=savedNotes[key];
+
+const dateText=new Date(key+"T00:00:00").toLocaleDateString(
+"en-IN",
+{
+weekday:"long",
+day:"numeric",
+month:"long",
+year:"numeric"
+}
+);
+
+const day=document.createElement("div");
+day.className="history-day";
+
+day.innerHTML=`
+<div class="history-header">
+<strong>📅 ${escapeHTML(dateText)}</strong>
+<span class="${successful?"history-success":"history-incomplete"}">
+${successful?"✓ Successful":"○ Incomplete"}
+</span>
+</div>
+
+<div class="history-details">
+<span>✅ ${completed}/${habits.length} habits</span>
+<span>🎯 Score: ${score}/100</span>
+</div>
+
+<div class="history-score-bar">
+<div style="width:${score}%"></div>
+</div>
+
+<div class="history-note">
+${note
+?"📝 "+escapeHTML(note)
+:"📝 No note added"}
+</div>
+`;
+
+list.appendChild(day);
 });
 }
-
-setInterval(function(){
-const savedTime=localStorage.getItem("backOnTrackReminder");
-
-if(!savedTime)return;
-
-const now=new Date();
-const currentTime=String(now.getHours()).padStart(2,"0")+":"+String(now.getMinutes()).padStart(2,"0");
-
-if(currentTime===savedTime&&now.getSeconds()<10){
-if("Notification" in window&&Notification.permission==="granted"){
-new Notification("BackOnTrack 🔔",{
-body:"Time to work on your daily habits!"
-});
-}
-}
-},10000);
-let calendarDate=new Date();
 
 function renderMonthlyCalendar(){
 const calendar=document.getElementById("monthlyCalendar");
-const monthTitle=document.getElementById("calendarMonth");
+const title=document.getElementById("calendarMonth");
 
-if(!calendar||!monthTitle)return;
+if(!calendar||!title)return;
 
 calendar.innerHTML="";
 
 const year=calendarDate.getFullYear();
 const month=calendarDate.getMonth();
 
-const monthName=calendarDate.toLocaleDateString("en-IN",{month:"long",year:"numeric"});
-monthTitle.textContent=monthName;
+title.textContent=calendarDate.toLocaleDateString(
+"en-IN",
+{
+month:"long",
+year:"numeric"
+}
+);
 
 const firstDay=new Date(year,month,1).getDay();
 const daysInMonth=new Date(year,month+1,0).getDate();
@@ -708,8 +683,8 @@ calendar.appendChild(empty);
 
 for(let day=1;day<=daysInMonth;day++){
 const date=new Date(year,month,day);
-const dateKey=getDateKey(date);
-const progress=savedData[dateKey];
+const key=getDateKey(date);
+const progress=savedData[key];
 
 const cell=document.createElement("div");
 cell.className="calendar-day";
@@ -719,61 +694,46 @@ number.textContent=day;
 
 const status=document.createElement("span");
 
-if(progress){
-if(isSuccessfulDay(progress)){
+if(progress&&isSuccessfulDay(progress)){
 cell.classList.add("calendar-success");
 status.textContent="✓";
-}else if(progress.some(function(value){
-return value!==null&&value!==undefined;
-})){
+}else if(progress&&progress.some(v=>v!==null&&v!==undefined)){
 cell.classList.add("calendar-progress");
 status.textContent="•";
-}else{
-status.textContent="–";
-}
 }else{
 cell.classList.add("calendar-empty");
 status.textContent="–";
 }
 
-if(dateKey===today){
+if(key===getLocalDate()){
 cell.classList.add("calendar-today");
 }
 
-cell.appendChild(number);
-cell.appendChild(status);
+cell.title=progress
+?`Score: ${calculateDailyScore(progress)}/100`
+:"No record";
+
+cell.append(number,status);
 calendar.appendChild(cell);
 }
 }
 
-const previousMonth=document.getElementById("previousMonth");
-const nextMonth=document.getElementById("nextMonth");
-
-if(previousMonth){
-previousMonth.addEventListener("click",function(){
-calendarDate.setMonth(calendarDate.getMonth()-1);
-renderMonthlyCalendar();
-});
-}
-
-if(nextMonth){
-nextMonth.addEventListener("click",function(){
-calendarDate.setMonth(calendarDate.getMonth()+1);
-renderMonthlyCalendar();
-});
-}
-
-renderMonthlyCalendar();
 function updateXPSystem(){
 let xp=0;
-Object.keys(savedData).forEach(function(dateKey){
-const progress=savedData[dateKey];
-habits.forEach(function(habit,index){
-if(isHabitComplete(index,progress))xp+=25;
+
+Object.values(savedData).forEach(progress=>{
+if(!Array.isArray(progress))return;
+
+habits.forEach((habit,index)=>{
+if(isHabitComplete(index,progress)){
+xp+=25;
+}
 });
 });
+
 const level=Math.floor(xp/100)+1;
-const currentXP=xp%100;
+const current=xp%100;
+
 const titles=[
 "🌱 Beginner",
 "🔥 Getting Started",
@@ -782,33 +742,468 @@ const titles=[
 "🏆 Strong Performer",
 "👑 BackOnTrack Master"
 ];
-const title=titles[Math.min(level-1,titles.length-1)];
+
 const levelNumber=document.getElementById("levelNumber");
 const levelTitle=document.getElementById("levelTitle");
 const xpNumber=document.getElementById("xpNumber");
 const xpFill=document.getElementById("xpFill");
 const xpProgress=document.getElementById("xpProgress");
-if(levelNumber)levelNumber.textContent="Level "+level;
-if(levelTitle)levelTitle.textContent=title;
-if(xpNumber)xpNumber.textContent=xp+" XP";
-if(xpFill)xpFill.style.width=currentXP+"%";
-if(xpProgress)xpProgress.textContent=currentXP+" / 100 XP to next level";
+
+if(levelNumber){
+levelNumber.textContent="Level "+level;
 }
-updateXPSystem();
-const xpHabitContainer=document.getElementById("habitsContainer");
-if(xpHabitContainer){
-xpHabitContainer.addEventListener("click",function(){
-setTimeout(updateXPSystem,100);
+
+if(levelTitle){
+levelTitle.textContent=titles[Math.min(level-1,titles.length-1)];
+}
+
+if(xpNumber){
+xpNumber.textContent=xp+" XP";
+}
+
+if(xpFill){
+xpFill.style.width=current+"%";
+}
+
+if(xpProgress){
+xpProgress.textContent=
+`${current} / 100 XP to next level`;
+}
+}
+function renderSettings(){
+const container=document.getElementById("settingsContainer");
+if(!container)return;
+
+container.innerHTML="";
+
+habits.forEach((habit,index)=>{
+const row=document.createElement("div");
+row.className="habit-setting-row";
+
+row.innerHTML=`
+<input type="text" value="${escapeAttr(habit.icon)}" class="icon-input" title="Icon">
+<input type="text" value="${escapeAttr(habit.name)}" class="name-input" placeholder="Habit name">
+<input type="number" min="1" step="any" value="${habit.target}" class="target-input">
+<input type="text" value="${escapeAttr(habit.unit)}" class="unit-input">
+<button class="delete-habit-btn" title="Delete habit">🗑️</button>
+`;
+
+row.querySelector(".delete-habit-btn").addEventListener("click",()=>{
+if(habits.length<=1){
+showMessage("⚠️ Keep at least one habit");
+return;
+}
+
+if(!confirm(`Delete "${habit.name}"?`))return;
+
+habits.splice(index,1);
+
+Object.keys(savedData).forEach(key=>{
+if(Array.isArray(savedData[key])){
+savedData[key].splice(index,1);
+}
+});
+
+save("backOnTrackHabits",habits);
+save("backOnTrackData",savedData);
+
+renderSettings();
+updateAll();
+
+showMessage("🗑️ Habit deleted");
+});
+
+container.appendChild(row);
 });
 }
-const exportDataButton=document.getElementById("exportData");
-const exportStatus=document.getElementById("exportStatus");
 
-if(exportDataButton){
-exportDataButton.addEventListener("click",function(){
-const exportData={
+function addNewHabit(){
+const nameInput=document.getElementById("newHabitName");
+const iconInput=document.getElementById("newHabitIcon");
+const targetInput=document.getElementById("newHabitTarget");
+const unitInput=document.getElementById("newHabitUnit");
+const maximumInput=document.getElementById("newHabitMaximum");
+const status=document.getElementById("addHabitStatus");
+
+if(!nameInput||!iconInput||!targetInput||!unitInput||!maximumInput)return;
+
+const name=nameInput.value.trim();
+const icon=iconInput.value.trim()||"⭐";
+const target=Number(targetInput.value);
+const unit=unitInput.value;
+const maximum=maximumInput.checked;
+
+if(!name){
+status.textContent="⚠️ Enter a habit name.";
+return;
+}
+
+if(!Number.isFinite(target)||target<=0){
+status.textContent="⚠️ Enter a valid target.";
+return;
+}
+
+const habit={
+name,
+icon,
+target,
+unit
+};
+
+if(maximum){
+habit.type="maximum";
+}
+
+habits.push(habit);
+
+Object.keys(savedData).forEach(key=>{
+if(Array.isArray(savedData[key])){
+savedData[key].push(null);
+}
+});
+
+save("backOnTrackHabits",habits);
+save("backOnTrackData",savedData);
+
+nameInput.value="";
+iconInput.value="";
+targetInput.value="";
+maximumInput.checked=false;
+
+status.textContent="✓ Habit added successfully.";
+
+renderSettings();
+updateAll();
+
+showMessage("➕ New habit added");
+}
+
+function saveHabitSettings(){
+const rows=document.querySelectorAll(".habit-setting-row");
+let changed=false;
+
+rows.forEach((row,index)=>{
+if(!habits[index])return;
+
+const icon=row.querySelector(".icon-input").value.trim();
+const name=row.querySelector(".name-input").value.trim();
+const target=Number(row.querySelector(".target-input").value);
+const unit=row.querySelector(".unit-input").value.trim();
+
+if(icon){
+habits[index].icon=icon;
+}
+
+if(name){
+habits[index].name=name;
+}
+
+if(Number.isFinite(target)&&target>0){
+habits[index].target=target;
+}else{
+changed=true;
+}
+
+if(unit){
+habits[index].unit=unit;
+}
+});
+
+save("backOnTrackHabits",habits);
+
+renderSettings();
+updateAll();
+
+const status=document.getElementById("habitSettingsStatus");
+
+if(status){
+status.textContent="✓ Settings saved successfully.";
+}
+
+showMessage("✓ Settings saved");
+
+if(changed){
+showMessage("⚠️ Check invalid habit targets");
+}
+}
+
+function saveDailyNotes(){
+const box=document.getElementById("dailyNotes");
+const status=document.getElementById("noteStatus");
+
+if(!box)return;
+
+const today=getLocalDate();
+const note=box.value.trim();
+
+if(note){
+savedNotes[today]=note;
+}else{
+delete savedNotes[today];
+}
+
+save("backOnTrackNotes",savedNotes);
+
+if(status){
+status.textContent=note
+?"✓ Note saved successfully."
+:"✓ Note removed.";
+}
+
+updateHistory();
+
+showMessage(note?"📝 Note saved":"📝 Note removed");
+}
+
+function setupNavigation(){
+const buttons=document.querySelectorAll(".nav-btn");
+const pages=document.querySelectorAll(".page");
+
+buttons.forEach(button=>{
+button.addEventListener("click",()=>{
+const target=button.dataset.page;
+
+buttons.forEach(item=>{
+item.classList.remove("active");
+});
+
+pages.forEach(page=>{
+page.classList.remove("active-page");
+});
+
+button.classList.add("active");
+
+const targetPage=document.getElementById(target);
+
+if(targetPage){
+targetPage.classList.add("active-page");
+}
+
+if(target==="history"){
+renderMonthlyCalendar();
+updateWeeklyStats();
+updateHistory();
+}
+
+if(target==="settings"){
+renderSettings();
+}
+
+window.scrollTo({
+top:0,
+behavior:"smooth"
+});
+});
+});
+}
+
+function applyTheme(){
+const theme=localStorage.getItem("backOnTrackTheme")||"light";
+
+document.body.classList.toggle(
+"dark-mode",
+theme==="dark"
+);
+
+const button=document.getElementById("themeToggle");
+
+if(button){
+button.textContent=
+theme==="dark"
+?"☀️ Light Mode"
+:"🌙 Dark Mode";
+}
+}
+
+function toggleTheme(){
+const isDark=document.body.classList.contains("dark-mode");
+
+localStorage.setItem(
+"backOnTrackTheme",
+isDark?"light":"dark"
+);
+
+applyTheme();
+
+showMessage(
+isDark
+?"☀️ Light mode enabled"
+:"🌙 Dark mode enabled"
+);
+}
+
+function loadReminder(){
+const input=document.getElementById("reminderTime");
+const status=document.getElementById("reminderStatus");
+
+if(!input)return;
+
+const savedReminder=localStorage.getItem("backOnTrackReminder");
+
+if(savedReminder){
+input.value=savedReminder;
+
+if(status){
+status.textContent="🔔 Reminder set for "+savedReminder;
+}
+}
+}
+
+async function saveReminder(){
+const input=document.getElementById("reminderTime");
+const status=document.getElementById("reminderStatus");
+
+if(!input)return;
+
+if(!input.value){
+if(status){
+status.textContent="⚠️ Please select a time.";
+}
+return;
+}
+
+localStorage.setItem(
+"backOnTrackReminder",
+input.value
+);
+
+if("Notification" in window){
+try{
+if(Notification.permission==="default"){
+await Notification.requestPermission();
+}
+}catch(error){
+console.log("Notification permission error:",error);
+}
+}
+
+if(status){
+status.textContent=
+"🔔 Reminder saved for "+input.value;
+}
+
+showMessage("✓ Daily reminder saved");
+}
+
+function checkReminder(){
+const savedTime=
+localStorage.getItem("backOnTrackReminder");
+
+if(!savedTime)return;
+
+const now=new Date();
+
+const current=
+String(now.getHours()).padStart(2,"0")+":"+
+String(now.getMinutes()).padStart(2,"0");
+
+const reminderKey=
+getLocalDate()+"_"+savedTime;
+
+if(
+current===savedTime&&
+now.getSeconds()<10&&
+localStorage.getItem("lastReminder")!==reminderKey
+){
+localStorage.setItem(
+"lastReminder",
+reminderKey
+);
+
+if(
+"Notification" in window&&
+Notification.permission==="granted"
+){
+new Notification(
+"BackOnTrack 🔔",
+{
+body:"Time to work on your daily habits!"
+}
+);
+}
+
+showMessage("🔔 Time for your habits!");
+}
+}
+
+function setupCalendarControls(){
+const previous=document.getElementById("previousMonth");
+const next=document.getElementById("nextMonth");
+
+if(previous){
+previous.addEventListener("click",()=>{
+calendarDate.setMonth(
+calendarDate.getMonth()-1
+);
+renderMonthlyCalendar();
+});
+}
+
+if(next){
+next.addEventListener("click",()=>{
+calendarDate.setMonth(
+calendarDate.getMonth()+1
+);
+renderMonthlyCalendar();
+});
+}
+}
+
+function setupButtons(){
+const saveSettingsButton=
+document.getElementById("saveSettings");
+
+const addHabitButton=
+document.getElementById("addHabitButton");
+
+const saveNotesButton=
+document.getElementById("saveNotes");
+
+const themeButton=
+document.getElementById("themeToggle");
+
+const reminderButton=
+document.getElementById("saveReminder");
+
+if(saveSettingsButton){
+saveSettingsButton.addEventListener(
+"click",
+saveHabitSettings
+);
+}
+
+if(addHabitButton){
+addHabitButton.addEventListener(
+"click",
+addNewHabit
+);
+}
+
+if(saveNotesButton){
+saveNotesButton.addEventListener(
+"click",
+saveDailyNotes
+);
+}
+
+if(themeButton){
+themeButton.addEventListener(
+"click",
+toggleTheme
+);
+}
+
+if(reminderButton){
+reminderButton.addEventListener(
+"click",
+saveReminder
+);
+}
+}
+function exportProgress(){
+const data={
 app:"BackOnTrack",
-version:"1.0",
+version:"3.0",
 exportedAt:new Date().toISOString(),
 habits:habits,
 progress:savedData,
@@ -817,89 +1212,286 @@ theme:localStorage.getItem("backOnTrackTheme")||"light",
 reminder:localStorage.getItem("backOnTrackReminder")||""
 };
 
-const dataString=JSON.stringify(exportData,null,2);
-const blob=new Blob([dataString],{type:"application/json"});
-const url=URL.createObjectURL(blob);
+try{
+const blob=new Blob(
+[JSON.stringify(data,null,2)],
+{type:"application/json"}
+);
 
+const url=URL.createObjectURL(blob);
 const link=document.createElement("a");
+
 link.href=url;
 link.download="BackOnTrack-Progress.json";
+
 document.body.appendChild(link);
 link.click();
 document.body.removeChild(link);
 
+setTimeout(()=>{
 URL.revokeObjectURL(url);
+},1000);
 
-if(exportStatus){
-exportStatus.textContent="✓ Your data has been exported successfully.";
+const status=document.getElementById("exportStatus");
+
+if(status){
+status.textContent="✓ Your data has been exported successfully.";
 }
 
-showMessage("📤 Progress exported successfully");
-});
-}
-const restoreFile=document.getElementById("restoreFile");
-const restoreData=document.getElementById("restoreData");
-const restoreStatus=document.getElementById("restoreStatus");
+showMessage("📤 Backup exported");
+}catch(error){
+console.error("Export error:",error);
 
-if(restoreData){
-restoreData.addEventListener("click",function(){
-if(!restoreFile.files.length){
-restoreStatus.textContent="Please select a backup file first.";
+const status=document.getElementById("exportStatus");
+
+if(status){
+status.textContent="⚠️ Export failed.";
+}
+
+showMessage("⚠️ Export failed");
+}
+}
+
+function restoreProgress(){
+const fileInput=document.getElementById("restoreFile");
+const status=document.getElementById("restoreStatus");
+
+if(!fileInput)return;
+
+const file=fileInput.files[0];
+
+if(!file){
+if(status){
+status.textContent="⚠️ Please select a backup file.";
+}
 return;
 }
 
-const file=restoreFile.files[0];
 const reader=new FileReader();
 
 reader.onload=function(event){
 try{
-const backup=JSON.parse(event.target.result);
+const data=JSON.parse(event.target.result);
 
-if(!backup.app||backup.app!=="BackOnTrack"){
-restoreStatus.textContent="❌ Invalid BackOnTrack backup file.";
-return;
+if(!data||data.app!=="BackOnTrack"){
+throw new Error("Invalid BackOnTrack backup");
 }
 
-if(backup.habits){
-localStorage.setItem("backOnTrackHabits",JSON.stringify(backup.habits));
+if(Array.isArray(data.habits)){
+habits=data.habits;
+save("backOnTrackHabits",habits);
 }
 
-if(backup.progress){
-localStorage.setItem("backOnTrackData",JSON.stringify(backup.progress));
+if(data.progress&&typeof data.progress==="object"){
+savedData=data.progress;
+save("backOnTrackData",savedData);
 }
 
-if(backup.notes){
-localStorage.setItem("backOnTrackNotes",JSON.stringify(backup.notes));
+if(data.notes&&typeof data.notes==="object"){
+savedNotes=data.notes;
+save("backOnTrackNotes",savedNotes);
 }
 
-if(backup.theme){
-localStorage.setItem("backOnTrackTheme",backup.theme);
+if(data.theme==="dark"||data.theme==="light"){
+localStorage.setItem(
+"backOnTrackTheme",
+data.theme
+);
 }
 
-if(backup.reminder){
-localStorage.setItem("backOnTrackReminder",backup.reminder);
+if(typeof data.reminder==="string"){
+if(data.reminder){
+localStorage.setItem(
+"backOnTrackReminder",
+data.reminder
+);
+}else{
+localStorage.removeItem("backOnTrackReminder");
+}
 }
 
-restoreStatus.textContent="✓ Backup restored successfully. Reloading...";
+applyTheme();
+loadReminder();
+updateNotes();
+renderSettings();
+updateAll();
 
-setTimeout(function(){
-location.reload();
-},1000);
+fileInput.value="";
 
+if(status){
+status.textContent="✓ Backup restored successfully.";
+}
+
+showMessage("🔄 Backup restored");
 }catch(error){
-restoreStatus.textContent="❌ Could not read this backup file.";
+console.error("Restore error:",error);
+
+if(status){
+status.textContent="⚠️ Invalid or corrupted backup file.";
+}
+
+showMessage("⚠️ Could not restore backup");
 }
 };
 
-reader.readAsText(file);
-});
+reader.onerror=function(){
+if(status){
+status.textContent="⚠️ Could not read the backup file.";
 }
-const addHabit=document.getElementById("addHabit");
-if(addHabit){
-addHabit.addEventListener("click",function(){
-habits.push({name:"New Habit",icon:"⭐",target:10,unit:"minutes"});
-localStorage.setItem("backOnTrackHabits",JSON.stringify(habits));
-renderSettings();
-showMessage("➕ New habit added");
+showMessage("⚠️ File reading failed");
+};
+
+reader.readAsText(file);
+}
+
+function resetEverything(){
+const confirmed=confirm(
+"Are you sure you want to delete all BackOnTrack data?\n\nThis cannot be undone."
+);
+
+if(!confirmed)return;
+
+const keys=[
+"backOnTrackHabits",
+"backOnTrackData",
+"backOnTrackNotes",
+"backOnTrackTheme",
+"backOnTrackReminder",
+"lastReminder"
+];
+
+keys.forEach(key=>{
+localStorage.removeItem(key);
 });
+
+habits=JSON.parse(
+JSON.stringify(defaultHabits)
+);
+
+savedData={};
+savedNotes={};
+calendarDate=new Date();
+
+applyTheme();
+loadReminder();
+updateNotes();
+renderSettings();
+updateAll();
+
+const restoreStatus=
+document.getElementById("restoreStatus");
+
+if(restoreStatus){
+restoreStatus.textContent="";
+}
+
+const exportStatus=
+document.getElementById("exportStatus");
+
+if(exportStatus){
+exportStatus.textContent="";
+}
+
+const habitStatus=
+document.getElementById("habitSettingsStatus");
+
+if(habitStatus){
+habitStatus.textContent="";
+}
+
+const addStatus=
+document.getElementById("addHabitStatus");
+
+if(addStatus){
+addStatus.textContent="";
+}
+
+showMessage("🗑️ All data has been reset");
+}
+
+function setupExtraButtons(){
+const exportButton=
+document.getElementById("exportData");
+
+const restoreButton=
+document.getElementById("restoreData");
+
+const resetButton=
+document.getElementById("resetData");
+
+if(exportButton){
+exportButton.addEventListener(
+"click",
+exportProgress
+);
+}
+
+if(restoreButton){
+restoreButton.addEventListener(
+"click",
+restoreProgress
+);
+}
+
+if(resetButton){
+resetButton.addEventListener(
+"click",
+resetEverything
+);
+}
+}
+
+function initializeApp(){
+try{
+if(!Array.isArray(habits)||habits.length===0){
+habits=JSON.parse(
+JSON.stringify(defaultHabits)
+);
+save("backOnTrackHabits",habits);
+}
+
+if(!savedData||typeof savedData!=="object"){
+savedData={};
+save("backOnTrackData",savedData);
+}
+
+if(!savedNotes||typeof savedNotes!=="object"){
+savedNotes={};
+save("backOnTrackNotes",savedNotes);
+}
+
+applyTheme();
+loadReminder();
+updateNotes();
+
+setupNavigation();
+setupButtons();
+setupCalendarControls();
+setupExtraButtons();
+
+renderSettings();
+updateAll();
+
+setInterval(checkReminder,5000);
+
+console.log("BackOnTrack initialized successfully.");
+}catch(error){
+console.error(
+"BackOnTrack initialization error:",
+error
+);
+
+showMessage(
+"⚠️ Something went wrong. Check Console."
+);
+}
+}
+
+if(document.readyState==="loading"){
+document.addEventListener(
+"DOMContentLoaded",
+initializeApp
+);
+}else{
+initializeApp();
 }

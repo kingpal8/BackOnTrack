@@ -1,157 +1,1233 @@
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:Arial,sans-serif;background:#f5f7fb;color:#1f2937;line-height:1.5;transition:background .3s,color .3s}
-button{transition:transform .2s,box-shadow .2s,background .2s}
-button:hover{transform:translateY(-2px);box-shadow:0 5px 12px rgba(0,0,0,.12)}
-button:active{transform:scale(.97)}
-header{background:#fff;padding:20px;text-align:center;box-shadow:0 2px 10px rgba(0,0,0,.08);transition:.3s}
-header h1{font-size:28px;margin-bottom:4px}
-header p{color:#6b7280}
-nav{display:flex;justify-content:center;gap:8px;margin-top:18px;flex-wrap:wrap}
-.nav-btn{border:0;background:#eef2f7;padding:10px 18px;border-radius:10px;cursor:pointer;font-weight:bold;color:#374151}
-.nav-btn.active{background:#374151;color:#fff;box-shadow:0 4px 10px rgba(0,0,0,.15)}
-main{max-width:900px;margin:25px auto;padding:0 18px}
-.page{display:none}
-.active-page{display:block;animation:pageIn .3s ease}
-@keyframes pageIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-.dashboard-header{display:flex;justify-content:space-between;align-items:center;gap:15px;margin-bottom:20px}
-.dashboard-header h2{font-size:25px}
-.dashboard-header p{color:#6b7280;font-size:14px}
-.streak{background:#fff;padding:12px 18px;border-radius:14px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,.06);transition:.25s}
-.streak:hover{transform:translateY(-3px)}
-.streak span{font-size:22px}
-.streak strong{font-size:25px;display:block}
-.streak small{color:#6b7280}
-.progress-card,.motivation-card,.notes-card,.content-card,.weekly-section,.achievements-section,.summary-section,.xp-card{background:#fff;border-radius:16px;padding:20px;margin-bottom:20px;box-shadow:0 2px 10px rgba(0,0,0,.06);transition:transform .25s,box-shadow .25s,background .3s}
-.progress-card:hover,.motivation-card:hover,.notes-card:hover,.content-card:hover,.weekly-section:hover,.achievements-section:hover,.summary-section:hover,.xp-card:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(0,0,0,.09)}
-.progress-top{display:flex;justify-content:space-between;gap:15px}
-.progress-top h3{margin-bottom:4px}
-.progress-top p{color:#6b7280;font-size:14px}
-.score-box{text-align:right}
-.score-box strong{font-size:25px}
-.score-box div{font-size:12px}
-.progress-bar,.xp-bar,.habit-progress,.stat-progress{height:9px;background:#e5e7eb;border-radius:20px;overflow:hidden;margin-top:15px}
-#progressFill,#xpFill,.habit-progress-fill,.stat-progress-fill{height:100%;background:#374151;border-radius:20px;transition:width .6s ease}
-.motivation-card{display:flex;align-items:center;gap:15px}
-.motivation-icon{font-size:35px}
-.motivation-card p{color:#6b7280}
-.habits{display:grid;grid-template-columns:repeat(3,1fr);gap:15px;margin-bottom:20px}
-.habit-card{background:#fff;border-radius:16px;padding:18px;box-shadow:0 2px 10px rgba(0,0,0,.06);transition:transform .25s,box-shadow .25s}
-.habit-card:hover{transform:translateY(-4px);box-shadow:0 7px 18px rgba(0,0,0,.1)}
-.habit-icon{font-size:30px;margin-bottom:5px}
-.habit-card h3{margin-bottom:4px}
-.habit-card p{font-size:13px;color:#6b7280}
-.goal-input{width:100%;padding:10px;margin-top:12px;border:1px solid #d1d5db;border-radius:8px;outline:none}
-.goal-input:focus,textarea:focus,input:focus{border-color:#374151;box-shadow:0 0 0 3px rgba(55,65,81,.1)}
-.goal-result{font-size:13px;margin-top:8px;font-weight:bold}
-.habit-percentage{text-align:right;font-size:12px;font-weight:bold;margin-top:4px}
-.complete-btn,#saveNotes,#saveSettings,#saveReminder,#themeToggle,#exportData,#restoreData{border:0;background:#374151;color:#fff;padding:10px 15px;border-radius:8px;cursor:pointer;font-weight:bold;margin-top:8px}
-.complete-btn.completed{background:#16a34a}
-.notes-card textarea{width:100%;min-height:100px;resize:vertical;border:1px solid #d1d5db;border-radius:10px;padding:12px;margin-top:10px;font-family:inherit;outline:none}
-.section-title{margin-bottom:15px}
-.section-title h2{margin-bottom:3px}
-.section-title p{color:#6b7280;font-size:14px}
-.weekly-overview{display:grid;grid-template-columns:repeat(7,1fr);gap:8px}
-.week-day{text-align:center}
-.day-name{font-size:12px;margin-bottom:5px}
-.day-circle{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:auto;background:#e5e7eb;transition:transform .2s}
-.day-circle:hover{transform:scale(1.1)}
-.day-success{background:#86efac}
-.day-failed{background:#fde68a}
-.day-today{outline:2px solid #374151}
-.achievements-container,.summary-container,.weekly-stats{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
-.achievement-card,.summary-card,.stat-card{background:#f9fafb;border:1px solid #e5e7eb;border-radius:12px;padding:15px;transition:.25s}
-.achievement-card:hover,.summary-card:hover,.stat-card:hover{transform:translateY(-3px);box-shadow:0 5px 12px rgba(0,0,0,.07)}
-.achievement-icon,.summary-icon{font-size:28px}
-.achievement-card p,.summary-card span,.stat-card p{font-size:13px;color:#6b7280}
-.achievement-locked{opacity:.5}
-.summary-card strong{display:block;font-size:24px}
-.content-card{margin-bottom:20px}
-.history-day{background:#f9fafb;border:1px solid #e5e7eb;border-radius:12px;padding:15px;margin-bottom:10px;transition:.2s}
-.history-day:hover{transform:translateX(3px)}
-.history-header{display:flex;justify-content:space-between;gap:10px}
-.history-success{color:#16a34a;font-weight:bold}
-.history-incomplete{color:#d97706;font-weight:bold}
-.history-details{display:flex;gap:15px;font-size:13px;margin-top:8px;flex-wrap:wrap}
-.history-score-bar{height:6px;background:#e5e7eb;border-radius:10px;margin-top:10px;overflow:hidden}
-.history-score-bar div{height:100%;background:#374151;transition:width .6s}
-.history-note{font-size:13px;margin-top:8px}
-.no-note{color:#9ca3af}
-.setting-row{display:grid;grid-template-columns:60px 1fr 100px;gap:8px;margin-bottom:10px}
-.setting-row input{padding:10px;border:1px solid #d1d5db;border-radius:8px;outline:none}
-.theme-setting,.reminder-setting,.export-setting,.backup-setting{padding:15px;border:1px solid #e5e7eb;border-radius:12px;margin-bottom:20px;transition:.25s}
-.theme-setting:hover,.reminder-setting:hover,.export-setting:hover,.backup-setting:hover{transform:translateY(-2px)}
-.theme-setting p,.reminder-setting p,.export-setting p,.backup-setting p{font-size:13px;color:#6b7280;margin:5px 0}
-#reminderTime{padding:10px;border:1px solid #d1d5db;border-radius:8px}
-#restoreFile{width:100%;margin-bottom:8px}
-.calendar-controls{display:flex;align-items:center;justify-content:space-between;margin:15px 0}
-.calendar-controls button{border:0;border-radius:8px;padding:8px 13px;cursor:pointer;font-size:18px;background:#eef2f7}
-.calendar-weekdays,.monthly-calendar{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
-.calendar-weekdays div{text-align:center;font-size:12px;font-weight:bold;padding:6px}
-.calendar-day{min-height:55px;border:1px solid #e5e7eb;border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;background:#fff;transition:.2s}
-.calendar-day:hover{transform:scale(1.04)}
-.empty-day{border:0;background:transparent}
-.calendar-success{background:#dcfce7;border-color:#86efac}
-.calendar-progress{background:#fef3c7;border-color:#fcd34d}
-.calendar-empty{background:#f9fafb}
-.calendar-today{outline:2px solid #374151}
-.calendar-legend{display:flex;justify-content:center;gap:15px;flex-wrap:wrap;margin-top:15px;font-size:12px}
-.calendar-legend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:4px}
-.legend-success{background:#86efac}
-.legend-progress{background:#fcd34d}
-.legend-empty{background:#d1d5db}
-.xp-header{display:flex;justify-content:space-between;align-items:center}
-.xp-header strong{font-size:24px}
-.xp-number{font-weight:bold}
-.xp-card p{font-size:13px;color:#6b7280}
-body.dark-mode{background:#111827;color:#f3f4f6}
-body.dark-mode header,body.dark-mode .progress-card,body.dark-mode .motivation-card,body.dark-mode .habit-card,body.dark-mode .notes-card,body.dark-mode .weekly-section,body.dark-mode .achievements-section,body.dark-mode .summary-section,body.dark-mode .content-card,body.dark-mode .xp-card,body.dark-mode .streak{background:#1f2937;color:#f3f4f6}
-body.dark-mode p,body.dark-mode small,body.dark-mode .section-title p,body.dark-mode .habit-card p{color:#d1d5db}
-body.dark-mode input,body.dark-mode textarea{background:#374151;color:#fff;border-color:#4b5563}
-body.dark-mode .achievement-card,body.dark-mode .summary-card,body.dark-mode .stat-card,body.dark-mode .history-day,body.dark-mode .theme-setting,body.dark-mode .reminder-setting,body.dark-mode .export-setting,body.dark-mode .backup-setting{background:#374151;border-color:#4b5563}
-body.dark-mode .calendar-day{background:#374151;border-color:#4b5563}
-body.dark-mode .calendar-empty{background:#1f2937}
-body.dark-mode .empty-day{background:transparent}
-body.dark-mode .progress-bar,body.dark-mode .xp-bar,body.dark-mode .habit-progress,body.dark-mode .stat-progress,body.dark-mode .history-score-bar{background:#4b5563}
-body.dark-mode .nav-btn,body.dark-mode .calendar-controls button{background:#374151;color:#f3f4f6}
-body.dark-mode .nav-btn.active{background:#f3f4f6;color:#111827}
-@media(max-width:700px){
-header{padding:16px 12px}
-header h1{font-size:24px}
-nav{gap:5px}
-.nav-btn{padding:9px 12px;font-size:13px}
-main{margin:15px auto;padding:0 10px}
-.dashboard-header{align-items:flex-start}
-.dashboard-header h2{font-size:22px}
-.streak{padding:9px 12px}
-.progress-card,.motivation-card,.notes-card,.content-card,.weekly-section,.achievements-section,.summary-section,.xp-card{padding:15px}
-.habits{grid-template-columns:1fr;gap:12px}
-.progress-top{align-items:flex-start}
-.score-box strong{font-size:21px}
-.weekly-overview{gap:4px}
-.day-circle{width:34px;height:34px}
-.achievements-container,.summary-container,.weekly-stats{grid-template-columns:1fr}
-.setting-row{grid-template-columns:45px 1fr 80px}
-.calendar-weekdays,.monthly-calendar{gap:3px}
-.calendar-day{min-height:45px;border-radius:7px}
-.calendar-weekdays div{font-size:10px}
-.calendar-day strong{font-size:12px}
-.calendar-day span{font-size:12px}
-.calendar-legend{gap:8px;font-size:11px}
-.reminder-setting input{width:100%;margin-bottom:5px}
-#saveReminder{margin-left:0}
-.xp-header{align-items:flex-start}
-.xp-header strong{font-size:21px}
-.xp-number{font-size:14px}
+*{
+box-sizing:border-box;
+margin:0;
+padding:0
 }
+
+body{
+font-family:Arial,sans-serif;
+background:#f5f7fb;
+color:#1f2937;
+line-height:1.5;
+transition:.3s
+}
+
+button,
+input,
+select,
+textarea{
+font:inherit
+}
+
+button{
+transition:.2s;
+cursor:pointer
+}
+
+button:hover{
+transform:translateY(-2px);
+box-shadow:0 5px 12px rgba(0,0,0,.12)
+}
+
+button:active{
+transform:scale(.97)
+}
+
+/* =========================
+   HEADER
+========================= */
+
+header{
+background:#fff;
+padding:20px;
+text-align:center;
+box-shadow:0 2px 10px rgba(0,0,0,.08);
+transition:.3s
+}
+
+header h1{
+font-size:28px;
+margin-bottom:4px
+}
+
+header p{
+color:#6b7280
+}
+
+nav{
+display:flex;
+justify-content:center;
+gap:8px;
+margin-top:18px;
+flex-wrap:wrap
+}
+
+.nav-btn{
+border:0;
+background:#eef2f7;
+padding:10px 18px;
+border-radius:10px;
+font-weight:bold;
+color:#374151
+}
+
+.nav-btn.active{
+background:#374151;
+color:#fff
+}
+
+/* =========================
+   MAIN / PAGES
+========================= */
+
+main{
+max-width:900px;
+margin:25px auto;
+padding:0 18px
+}
+
+.page{
+display:none
+}
+
+.active-page{
+display:block;
+animation:pageIn .3s ease
+}
+
+@keyframes pageIn{
+from{
+opacity:0;
+transform:translateY(8px)
+}
+to{
+opacity:1;
+transform:translateY(0)
+}
+}
+
+/* =========================
+   DASHBOARD HEADER
+========================= */
+
+.dashboard-header{
+display:flex;
+justify-content:space-between;
+align-items:center;
+gap:15px;
+margin-bottom:20px
+}
+
+.dashboard-header h2{
+font-size:25px
+}
+
+.dashboard-header p,
+.section-title p{
+color:#6b7280;
+font-size:14px
+}
+
+.streak{
+background:#fff;
+padding:12px 18px;
+border-radius:14px;
+text-align:center;
+box-shadow:0 2px 8px rgba(0,0,0,.06)
+}
+
+.streak span{
+font-size:22px
+}
+
+.streak strong{
+font-size:25px;
+display:block
+}
+
+.streak small{
+color:#6b7280
+}
+
+/* =========================
+   CARDS
+========================= */
+
+.progress-card,
+.motivation-card,
+.notes-card,
+.content-card,
+.weekly-section,
+.achievements-section,
+.summary-section,
+.xp-card{
+background:#fff;
+border-radius:16px;
+padding:20px;
+margin-bottom:20px;
+box-shadow:0 2px 10px rgba(0,0,0,.06);
+transition:.3s
+}
+
+.progress-card:hover,
+.motivation-card:hover,
+.notes-card:hover,
+.content-card:hover,
+.weekly-section:hover,
+.achievements-section:hover,
+.summary-section:hover,
+.xp-card:hover{
+transform:translateY(-2px);
+box-shadow:0 6px 18px rgba(0,0,0,.09)
+}
+
+/* =========================
+   PROGRESS
+========================= */
+
+.progress-top{
+display:flex;
+justify-content:space-between;
+gap:15px
+}
+
+.progress-top h3{
+margin-bottom:4px
+}
+
+.progress-top p{
+color:#6b7280;
+font-size:14px
+}
+
+.score-box{
+text-align:right
+}
+
+.score-box strong{
+font-size:25px
+}
+
+.score-box div{
+font-size:12px
+}
+
+.progress-bar,
+.xp-bar,
+.habit-progress,
+.stat-progress{
+height:9px;
+background:#e5e7eb;
+border-radius:20px;
+overflow:hidden;
+margin-top:15px
+}
+
+#progressFill,
+#xpFill,
+.habit-progress-fill,
+.stat-progress-fill{
+height:100%;
+background:#374151;
+border-radius:20px;
+transition:width .6s ease
+}
+
+/* =========================
+   MOTIVATION
+========================= */
+
+.motivation-card{
+display:flex;
+align-items:center;
+gap:15px
+}
+
+.motivation-icon{
+font-size:35px
+}
+
+.motivation-card p{
+color:#6b7280
+}
+
+/* =========================
+   HABITS
+========================= */
+
+.habits{
+display:grid;
+grid-template-columns:repeat(3,1fr);
+gap:15px;
+margin-bottom:20px
+}
+
+.habit-card{
+background:#fff;
+border-radius:16px;
+padding:18px;
+box-shadow:0 2px 10px rgba(0,0,0,.06);
+transition:.25s
+}
+
+.habit-card:hover{
+transform:translateY(-4px);
+box-shadow:0 7px 18px rgba(0,0,0,.1)
+}
+
+.habit-icon{
+font-size:30px;
+margin-bottom:5px
+}
+
+.habit-card h3{
+margin-bottom:4px
+}
+
+.habit-card p{
+font-size:13px;
+color:#6b7280
+}
+
+/* =========================
+   INPUTS
+========================= */
+
+.goal-input{
+width:100%;
+padding:10px;
+margin-top:12px;
+border:1px solid #d1d5db;
+border-radius:8px;
+outline:none;
+background:#fff;
+color:#1f2937
+}
+
+.goal-input:focus,
+textarea:focus,
+input:focus,
+select:focus{
+border-color:#374151;
+box-shadow:0 0 0 3px rgba(55,65,81,.1);
+outline:none
+}
+
+.goal-result{
+font-size:13px;
+margin-top:8px;
+font-weight:bold;
+min-height:20px
+}
+
+.habit-percentage{
+text-align:right;
+font-size:12px;
+font-weight:bold;
+margin-top:4px
+}
+
+/* =========================
+   BUTTONS
+========================= */
+
+.complete-btn,
+#saveNotes,
+#saveSettings,
+#saveReminder,
+#themeToggle,
+#exportData,
+#restoreData,
+.add-habit-btn{
+border:0;
+background:#374151;
+color:#fff;
+padding:10px 15px;
+border-radius:8px;
+font-weight:bold;
+margin-top:8px
+}
+
+.complete-btn.completed{
+background:#16a34a
+}
+
+/* =========================
+   NOTES
+========================= */
+
+.notes-card textarea{
+width:100%;
+min-height:100px;
+resize:vertical;
+border:1px solid #d1d5db;
+border-radius:10px;
+padding:12px;
+margin-top:10px;
+outline:none;
+background:#fff;
+color:#1f2937
+}
+
+/* =========================
+   SECTION TITLES
+========================= */
+
+.section-title{
+margin-bottom:15px
+}
+
+.section-title h2{
+margin-bottom:3px
+}
+
+/* =========================
+   WEEKLY OVERVIEW
+========================= */
+
+.weekly-overview{
+display:grid;
+grid-template-columns:repeat(7,1fr);
+gap:8px
+}
+
+.week-day{
+text-align:center
+}
+
+.day-name{
+font-size:12px;
+margin-bottom:5px
+}
+
+.day-circle{
+width:38px;
+height:38px;
+border-radius:50%;
+display:flex;
+align-items:center;
+justify-content:center;
+margin:auto;
+background:#e5e7eb
+}
+
+.day-success{
+background:#86efac
+}
+
+.day-failed{
+background:#fde68a
+}
+
+.day-today{
+outline:2px solid #374151
+}
+
+/* =========================
+   ACHIEVEMENTS / SUMMARY
+========================= */
+
+.achievements-container,
+.summary-container,
+.weekly-stats{
+display:grid;
+grid-template-columns:repeat(2,1fr);
+gap:12px
+}
+
+.achievement-card,
+.summary-card,
+.stat-card{
+background:#f9fafb;
+border:1px solid #e5e7eb;
+border-radius:12px;
+padding:15px;
+transition:.25s
+}
+
+.achievement-card:hover,
+.summary-card:hover,
+.stat-card:hover{
+transform:translateY(-3px);
+box-shadow:0 5px 12px rgba(0,0,0,.07)
+}
+
+.achievement-icon,
+.summary-icon{
+font-size:28px
+}
+
+.achievement-card p,
+.summary-card span,
+.stat-card p{
+font-size:13px;
+color:#6b7280
+}
+
+.achievement-locked{
+opacity:.5
+}
+
+.summary-card strong{
+display:block;
+font-size:24px
+}
+
+/* =========================
+   HISTORY
+========================= */
+
+.history-day{
+background:#f9fafb;
+border:1px solid #e5e7eb;
+border-radius:12px;
+padding:15px;
+margin-bottom:10px
+}
+
+.history-header{
+display:flex;
+justify-content:space-between;
+gap:10px
+}
+
+.history-success{
+color:#16a34a;
+font-weight:bold
+}
+
+.history-incomplete{
+color:#d97706;
+font-weight:bold
+}
+
+.history-details{
+display:flex;
+gap:15px;
+font-size:13px;
+margin-top:8px;
+flex-wrap:wrap
+}
+
+.history-score-bar{
+height:6px;
+background:#e5e7eb;
+border-radius:10px;
+margin-top:10px;
+overflow:hidden
+}
+
+.history-score-bar div{
+height:100%;
+background:#374151
+}
+
+.history-note{
+font-size:13px;
+margin-top:8px
+}
+
+.no-note{
+color:#9ca3af
+}
+
+/* =========================
+   SETTINGS
+========================= */
+
+.habit-management,
+.add-habit-setting,
+.theme-setting,
+.reminder-setting,
+.export-setting,
+.backup-setting,
+.danger-setting{
+padding:15px;
+border:1px solid #e5e7eb;
+border-radius:12px;
+margin-bottom:20px;
+transition:.25s
+}
+
+.habit-management>p,
+.add-habit-setting>p,
+.theme-setting p,
+.reminder-setting p,
+.export-setting p,
+.backup-setting p,
+.danger-setting p{
+font-size:13px;
+color:#6b7280;
+margin:5px 0 15px
+}
+
+.habit-setting-row{
+display:grid;
+grid-template-columns:55px 1.5fr 100px 100px 45px;
+gap:8px;
+margin-bottom:10px;
+align-items:center
+}
+
+.habit-setting-row input{
+width:100%;
+padding:10px;
+border:1px solid #d1d5db;
+border-radius:8px;
+outline:none;
+background:#fff;
+color:#1f2937
+}
+
+.delete-habit-btn{
+border:0;
+background:#fee2e2;
+color:#b91c1c;
+padding:9px;
+border-radius:8px;
+font-weight:bold
+}
+
+.add-habit-setting{
+background:#fafafa
+}
+
+.habit-form{
+display:grid;
+grid-template-columns:1.5fr 100px 100px 120px;
+gap:8px
+}
+
+.habit-form input,
+.habit-form select,
+#reminderTime{
+padding:10px;
+border:1px solid #d1d5db;
+border-radius:8px;
+outline:none;
+background:#fff;
+color:#1f2937
+}
+
+.maximum-option{
+display:flex;
+align-items:center;
+gap:6px;
+padding:8px;
+font-size:13px
+}
+
+.add-habit-btn{
+background:#16a34a
+}
+
+.inline-setting{
+display:flex;
+gap:8px;
+align-items:center
+}
+
+/* =========================
+   STATUS / RESTORE
+========================= */
+
+.status-text{
+font-size:13px!important;
+color:#16a34a!important;
+margin-top:8px!important;
+min-height:18px
+}
+
+#restoreFile{
+width:100%;
+margin-bottom:5px
+}
+
+.danger-btn{
+border:0;
+background:#dc2626;
+color:#fff;
+padding:10px 15px;
+border-radius:8px;
+font-weight:bold
+}
+
+/* =========================
+   CALENDAR
+========================= */
+
+.calendar-controls{
+display:flex;
+align-items:center;
+justify-content:space-between;
+margin:15px 0
+}
+
+.calendar-controls button{
+border:0;
+border-radius:8px;
+padding:8px 13px;
+font-size:18px;
+background:#eef2f7
+}
+
+.calendar-weekdays,
+.monthly-calendar{
+display:grid;
+grid-template-columns:repeat(7,1fr);
+gap:6px
+}
+
+.calendar-weekdays div{
+text-align:center;
+font-size:12px;
+font-weight:bold;
+padding:6px
+}
+
+.calendar-day{
+min-height:55px;
+border:1px solid #e5e7eb;
+border-radius:10px;
+display:flex;
+flex-direction:column;
+align-items:center;
+justify-content:center;
+gap:4px;
+background:#fff;
+color:#1f2937
+}
+
+.empty-day{
+border:0;
+background:transparent
+}
+
+.calendar-success{
+background:#dcfce7;
+border-color:#86efac
+}
+
+.calendar-progress{
+background:#fef3c7;
+border-color:#fcd34d
+}
+
+.calendar-empty{
+background:#f9fafb
+}
+
+.calendar-today{
+outline:2px solid #374151
+}
+
+.calendar-legend{
+display:flex;
+justify-content:center;
+gap:15px;
+flex-wrap:wrap;
+margin-top:15px;
+font-size:12px
+}
+
+.calendar-legend i{
+display:inline-block;
+width:10px;
+height:10px;
+border-radius:50%;
+margin-right:4px
+}
+
+.legend-success{
+background:#86efac
+}
+
+.legend-progress{
+background:#fcd34d
+}
+
+.legend-empty{
+background:#d1d5db
+}
+
+/* =========================
+   XP
+========================= */
+
+.xp-header{
+display:flex;
+justify-content:space-between;
+align-items:center
+}
+
+.xp-header strong{
+font-size:24px
+}
+
+.xp-number{
+font-weight:bold
+}
+
+.xp-card p{
+font-size:13px;
+color:#6b7280
+}
+
+/* =========================
+   TOAST
+========================= */
+
+.toast{
+position:fixed;
+bottom:25px;
+left:50%;
+transform:translateX(-50%) translateY(20px);
+background:#1f2937;
+color:#fff;
+padding:12px 20px;
+border-radius:10px;
+font-size:14px;
+font-weight:bold;
+z-index:1000;
+opacity:0;
+pointer-events:none;
+transition:.3s
+}
+
+.toast.show{
+opacity:1;
+transform:translateX(-50%) translateY(0)
+}
+
+/* =====================================================
+   DARK MODE
+===================================================== */
+
+body.dark-mode{
+background:#111827;
+color:#f3f4f6
+}
+
+/* Main cards */
+
+body.dark-mode header,
+body.dark-mode .progress-card,
+body.dark-mode .motivation-card,
+body.dark-mode .habit-card,
+body.dark-mode .notes-card,
+body.dark-mode .weekly-section,
+body.dark-mode .achievements-section,
+body.dark-mode .summary-section,
+body.dark-mode .content-card,
+body.dark-mode .xp-card,
+body.dark-mode .streak{
+background:#1f2937;
+color:#f3f4f6
+}
+
+/* General text */
+
+body.dark-mode p,
+body.dark-mode small,
+body.dark-mode .section-title p,
+body.dark-mode .habit-card p,
+body.dark-mode .progress-top p,
+body.dark-mode .motivation-card p,
+body.dark-mode .xp-card p{
+color:#d1d5db
+}
+
+/* Inputs */
+
+body.dark-mode input,
+body.dark-mode textarea,
+body.dark-mode select,
+body.dark-mode .goal-input,
+body.dark-mode .habit-setting-row input,
+body.dark-mode .habit-form input,
+body.dark-mode .habit-form select,
+body.dark-mode #reminderTime{
+background:#374151;
+color:#f9fafb;
+border-color:#6b7280
+}
+
+/* Placeholder text */
+
+body.dark-mode input::placeholder,
+body.dark-mode textarea::placeholder,
+body.dark-mode .goal-input::placeholder{
+color:#d1d5db;
+opacity:1
+}
+
+/* Focus */
+
+body.dark-mode input:focus,
+body.dark-mode textarea:focus,
+body.dark-mode select:focus{
+border-color:#9ca3af;
+box-shadow:0 0 0 3px rgba(156,163,175,.2)
+}
+
+/* Cards inside sections */
+
+body.dark-mode .achievement-card,
+body.dark-mode .summary-card,
+body.dark-mode .stat-card,
+body.dark-mode .history-day,
+body.dark-mode .habit-management,
+body.dark-mode .add-habit-setting,
+body.dark-mode .theme-setting,
+body.dark-mode .reminder-setting,
+body.dark-mode .export-setting,
+body.dark-mode .backup-setting,
+body.dark-mode .danger-setting{
+background:#374151;
+border-color:#4b5563;
+color:#f3f4f6
+}
+
+/* Text inside cards */
+
+body.dark-mode .achievement-card p,
+body.dark-mode .summary-card span,
+body.dark-mode .stat-card p,
+body.dark-mode .history-details,
+body.dark-mode .history-note,
+body.dark-mode .habit-management>p,
+body.dark-mode .add-habit-setting>p,
+body.dark-mode .theme-setting p,
+body.dark-mode .reminder-setting p,
+body.dark-mode .export-setting p,
+body.dark-mode .backup-setting p,
+body.dark-mode .danger-setting p{
+color:#d1d5db
+}
+
+/* Result / percentage text */
+
+body.dark-mode .goal-result,
+body.dark-mode .habit-percentage,
+body.dark-mode #dailyScore,
+body.dark-mode #scoreMessage,
+body.dark-mode #progressText{
+color:#f3f4f6
+}
+
+/* Navigation */
+
+body.dark-mode .nav-btn{
+background:#374151;
+color:#f3f4f6
+}
+
+body.dark-mode .nav-btn.active{
+background:#f9fafb;
+color:#111827
+}
+
+/* Calendar */
+
+body.dark-mode .calendar-day{
+background:#374151;
+border-color:#6b7280;
+color:#f9fafb
+}
+
+body.dark-mode .calendar-empty{
+background:#1f2937;
+color:#d1d5db
+}
+
+body.dark-mode .empty-day{
+background:transparent;
+border-color:transparent
+}
+
+body.dark-mode .calendar-success{
+background:#14532d;
+border-color:#22c55e;
+color:#f0fdf4
+}
+
+body.dark-mode .calendar-progress{
+background:#713f12;
+border-color:#f59e0b;
+color:#fffbeb
+}
+
+body.dark-mode .calendar-today{
+outline:2px solid #f3f4f6
+}
+
+body.dark-mode .calendar-controls button{
+background:#374151;
+color:#f3f4f6
+}
+
+body.dark-mode .calendar-weekdays div{
+color:#f3f4f6
+}
+
+/* Progress bars */
+
+body.dark-mode .progress-bar,
+body.dark-mode .xp-bar,
+body.dark-mode .habit-progress,
+body.dark-mode .stat-progress,
+body.dark-mode .history-score-bar{
+background:#4b5563
+}
+
+/* Add habit */
+
+body.dark-mode .add-habit-setting{
+background:#374151
+}
+
+/* Delete button */
+
+body.dark-mode .delete-habit-btn{
+background:#7f1d1d;
+color:#fecaca
+}
+
+/* Maximum target */
+
+body.dark-mode .maximum-option{
+color:#f3f4f6
+}
+
+/* Status messages */
+
+body.dark-mode .status-text{
+color:#86efac!important
+}
+
+/* Notes */
+
+body.dark-mode .notes-card textarea{
+background:#374151;
+color:#f9fafb
+}
+
+/* No note */
+
+body.dark-mode .no-note{
+color:#9ca3af
+}
+
+/* Streak */
+
+body.dark-mode .streak small{
+color:#d1d5db
+}
+
+/* =====================================================
+   MOBILE
+===================================================== */
+
+@media(max-width:700px){
+
+header{
+padding:16px 12px
+}
+
+header h1{
+font-size:24px
+}
+
+nav{
+gap:5px
+}
+
+.nav-btn{
+padding:9px 12px;
+font-size:13px
+}
+
+main{
+margin:15px auto;
+padding:0 10px
+}
+
+.dashboard-header{
+align-items:flex-start
+}
+
+.dashboard-header h2{
+font-size:22px
+}
+
+.streak{
+padding:9px 12px
+}
+
+.progress-card,
+.motivation-card,
+.notes-card,
+.content-card,
+.weekly-section,
+.achievements-section,
+.summary-section,
+.xp-card{
+padding:15px
+}
+
+.habits{
+grid-template-columns:1fr;
+gap:12px
+}
+
+.progress-top{
+align-items:flex-start
+}
+
+.score-box strong{
+font-size:21px
+}
+
+.weekly-overview{
+gap:4px
+}
+
+.day-circle{
+width:34px;
+height:34px
+}
+
+.achievements-container,
+.summary-container,
+.weekly-stats{
+grid-template-columns:1fr
+}
+
+.habit-setting-row{
+grid-template-columns:45px 1fr 80px 80px 40px;
+gap:5px
+}
+
+.habit-setting-row input{
+padding:8px;
+font-size:13px
+}
+
+.habit-form{
+grid-template-columns:1fr 1fr
+}
+
+.inline-setting{
+align-items:stretch
+}
+
+.inline-setting input,
+.inline-setting button{
+flex:1
+}
+
+.calendar-weekdays,
+.monthly-calendar{
+gap:3px
+}
+
+.calendar-day{
+min-height:45px;
+border-radius:7px
+}
+
+.calendar-weekdays div{
+font-size:10px
+}
+
+.calendar-day strong,
+.calendar-day span{
+font-size:12px
+}
+
+.calendar-legend{
+gap:8px;
+font-size:11px
+}
+
+.xp-header{
+align-items:flex-start
+}
+
+.xp-header strong{
+font-size:21px
+}
+
+.xp-number{
+font-size:14px
+}
+
+}
+
+/* =====================================================
+   VERY SMALL SCREENS
+===================================================== */
+
 @media(max-width:400px){
-nav{display:grid;grid-template-columns:repeat(3,1fr)}
-.nav-btn{padding:8px 5px}
-.dashboard-header{flex-direction:column}
-.streak{width:100%}
-.progress-top{flex-direction:column}
-.score-box{text-align:left}
-.weekly-overview{gap:2px}
-.day-circle{width:30px;height:30px;font-size:12px}
-.setting-row{grid-template-columns:40px 1fr 70px}
-.calendar-day{min-height:40px}
+
+nav{
+display:grid;
+grid-template-columns:repeat(3,1fr)
+}
+
+.nav-btn{
+padding:8px 5px
+}
+
+.dashboard-header{
+flex-direction:column
+}
+
+.streak{
+width:100%
+}
+
+.progress-top{
+flex-direction:column
+}
+
+.score-box{
+text-align:left
+}
+
+.weekly-overview{
+gap:2px
+}
+
+.day-circle{
+width:30px;
+height:30px;
+font-size:12px
+}
+
+.habit-setting-row{
+grid-template-columns:40px 1fr
+}
+
+.habit-setting-row input{
+width:100%
+}
+
+.delete-habit-btn{
+grid-column:2;
+width:100%
+}
+
+.habit-form{
+grid-template-columns:1fr
+}
+
+.inline-setting{
+flex-direction:column
+}
+
+.calendar-day{
+min-height:40px
+}
+
 }
